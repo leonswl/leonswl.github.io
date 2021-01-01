@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/static/css/main.ad03a395.chunk.css",
-    "main.js": "/static/js/main.dac98086.chunk.js",
-    "main.js.map": "/static/js/main.dac98086.chunk.js.map",
+    "main.css": "/static/css/main.08240c8c.chunk.css",
+    "main.js": "/static/js/main.1034d351.chunk.js",
+    "main.js.map": "/static/js/main.1034d351.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.880a19c9.js",
     "runtime-main.js.map": "/static/js/runtime-main.880a19c9.js.map",
     "static/css/2.99bdb016.chunk.css": "/static/css/2.99bdb016.chunk.css",
     "static/js/2.57ecda62.chunk.js": "/static/js/2.57ecda62.chunk.js",
     "static/js/2.57ecda62.chunk.js.map": "/static/js/2.57ecda62.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.59edfe2abba139ad789922b354ee64de.js": "/precache-manifest.59edfe2abba139ad789922b354ee64de.js",
+    "precache-manifest.e2b780075884478728fd4d89d5c6a689.js": "/precache-manifest.e2b780075884478728fd4d89d5c6a689.js",
     "service-worker.js": "/service-worker.js",
     "static/css/2.99bdb016.chunk.css.map": "/static/css/2.99bdb016.chunk.css.map",
-    "static/css/main.ad03a395.chunk.css.map": "/static/css/main.ad03a395.chunk.css.map",
+    "static/css/main.08240c8c.chunk.css.map": "/static/css/main.08240c8c.chunk.css.map",
     "static/js/2.57ecda62.chunk.js.LICENSE.txt": "/static/js/2.57ecda62.chunk.js.LICENSE.txt",
     "static/media/best-app-development-tool.md": "/static/media/best-app-development-tool.70f40b0f.md",
     "static/media/common-misconceptions-about-payment.md": "/static/media/common-misconceptions-about-payment.bdea94e6.md",
@@ -23,7 +23,7 @@
     "static/js/runtime-main.880a19c9.js",
     "static/css/2.99bdb016.chunk.css",
     "static/js/2.57ecda62.chunk.js",
-    "static/css/main.ad03a395.chunk.css",
-    "static/js/main.dac98086.chunk.js"
+    "static/css/main.08240c8c.chunk.css",
+    "static/js/main.1034d351.chunk.js"
   ]
 }
