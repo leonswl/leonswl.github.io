@@ -123,7 +123,7 @@ function Header({ light, logoSource, toggleMenu, headerToggler }) {
 
         <div className="footer">
           <span className="copyright">
-            &copy; {new Date().getFullYear()} Bolby Template.
+            &copy; {new Date().getFullYear()} - Powered by PxlSolutions using Reactjs and Bootstrap 4.5
           </span>
         </div>
       </header>

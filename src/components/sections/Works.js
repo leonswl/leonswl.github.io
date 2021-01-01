@@ -6,62 +6,47 @@ import Portfolio from "../elements/Portfolio";
 const filters = [
   {
     id: 1,
-    text: "Data Science",
+    text: "Everything",
   },
   {
     id: 2,
-    text: "Web Development",
+    text: "data science",
   },
-  // {
-  //   id: 3,
-  //   text: "art",
-  // },
-  // {
-  //   id: 4,
-  //   text: "design",
-  // },
-  // {
-  //   id: 5,
-  //   text: "branding",
-  // },
+  {
+    id: 3,
+    text: "web development",
+  },
 ];
 
 const allData = [
   {
     id: 1,
     title: "Analysing Melbourne Housing Prices using Logistics Regression",
-    category: "Python",
+    category: "data science",
     image: "images/works/1.svg",
     // popupLink: ["images/works/1.svg"],
   },
-  // {
-  //   id: 2,
-  //   title: "Guest App Walkthrough Screens",
-  //   category: "creative",
-  //   image: "images/works/2.svg",
-  //   popupLink: [
-  //     "images/works/2.svg",
-  //     "images/works/5.svg",
-  //     "images/works/6.svg",
-  //   ],
-  // },
-  // {
-  //   id: 3,
-  //   title: "Delivery App Wireframe",
-  //   category: "branding",
-  //   image: "images/works/3.svg",
-  //   popupLink: ["https://www.youtube.com/watch?v=qf9z4ulfmYw"],
-  // },
-  // {
-  //   id: 4,
-  //   title: "Onboarding Motivation",
-  //   category: "creative",
-  //   image: "images/works/4.svg",
-  //   popupLink: [
-  //     "https://www.youtube.com/watch?v=URVHRhBSjj8",
-  //     "https://www.youtube.com/watch?v=qf9z4ulfmYw",
-  //   ],
-  // },
+  {
+    id: 2,
+    title: "First web dev project at Archisen (Bootstrap4)",
+    category: "web development",
+    image: "images/works/justproduce.png",
+    link: ["https://justproduce.sg/"],
+  },
+  {
+    id: 3,
+    title: "Revamping Archisen's Corporate Website (Bootstrap4)",
+    category: "web development",
+    image: "images/works/archisen.png",
+    link: ["https://www.archisen.com/"],
+  },
+  {
+    id: 4,
+    title: "New Farm-to-table Product Website - Boostrap4",
+    category: "web development",
+    image: "images/works/justharvest.png",
+    link: ["https://www.justharvest.sg/"],
+  },
   // {
   //   id: 5,
   //   title: "iMac Mockup Design",
