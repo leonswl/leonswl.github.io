@@ -1,0 +1,302 @@
+I"‘„<h1 id="melbourne-housing-market">Melbourne Housing Market</h1>
+
+<p>I will be using linear regression to model price with the various variables to determine if the model is able to predict price changes.</p>
+<ol>
+  <li>Data Cleaning</li>
+  <li>Data Exploration</li>
+  <li>Data Modelling using Linear Regression with all the variables</li>
+</ol>
+
+<h1 id="melbourne-housing-market-1">Melbourne Housing Market</h1>
+<p>Housing clearance data from Jan 2016
+Link: https://www.kaggle.com/anthonypino/melbourne-housing-market?select=Melbourne_housing_FULL.csv</p>
+
+<ol>
+  <li>When did the Melbourne housing cooled off?</li>
+  <li>Could you see it slowing down? What were the variables that showed the slowing down (was it overall price, amount sold vs unsold, change in more rentals sold and less housing, changes in which CouncilArea or Region, more houses sold in distances further away from Melbourne CBD and less closer)?</li>
+  <li>Could you have predicted it?</li>
+  <li>Should I hold off even longer in buying a two bedroom apartment in Northcote??</li>
+</ol>
+
+<p>This notebook is copied and adapted from https://www.kaggle.com/anthonypino/price-analysis-and-linear-regression.</p>
+
+<p>The main components of this notebook can be split into:</p>
+
+<h3 id="some-key-details">Some Key Details</h3>
+<p>Suburb: Suburb</p>
+
+<p>Address: Address</p>
+
+<p>Rooms: Number of rooms</p>
+
+<p>Price: Price in Australian dollars</p>
+
+<h4 id="method">Method:</h4>
+<p>S - property sold;
+SP - property sold prior;
+PI - property passed in;
+PN - sold prior not disclosed;
+SN - sold not disclosed;
+NB - no bid;
+VB - vendor bid;
+W - withdrawn prior to auction;
+SA - sold after auction;
+SS - sold after auction price not disclosed.
+N/A - price or highest bid not available.</p>
+
+<h4 id="type">Type:</h4>
+<p>br - bedroom(s);
+h - house,cottage,villa, semi,terrace;
+u - unit, duplex;
+t - townhouse;
+dev site - development site;
+o res - other residential.</p>
+
+<p>SellerG: Real Estate Agent</p>
+
+<p>Date: Date sold</p>
+
+<p>Distance: Distance from CBD in Kilometres</p>
+
+<p>Regionname: General Region (West, North West, North, North east â€¦etc)</p>
+
+<p>Propertycount: Number of properties that exist in the suburb.</p>
+
+<p>Bedroom2 : Scraped # of Bedrooms (from different source)</p>
+
+<p>Bathroom: Number of Bathrooms</p>
+
+<p>Car: Number of carspots</p>
+
+<p>Landsize: Land Size in Metres</p>
+
+<p>BuildingArea: Building Size in Metres</p>
+
+<p>YearBuilt: Year the house was built</p>
+
+<p>CouncilArea: Governing council for the area</p>
+
+<p>Lattitude: Self explanitory</p>
+
+<p>Longtitude: Self explanitory</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Import libraries
+</span>
+<span class="c1"># Data wrangling
+</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span> <span class="c1"># Usage: Determine days from start
+</span>
+<span class="c1"># Data Visualisations
+</span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">pylab</span> <span class="k">as</span> <span class="n">pl</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+
+<span class="c1"># Model Development and Evaluation
+</span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span> <span class="c1"># For Model Development
+</span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Reading source files
+</span>
+<span class="c1"># df_houseprice = pd.read_csv("data/MELBOURNE_HOUSE_PRICES_LESS.csv")
+</span><span class="n">df_housingfull</span><span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"data/Melbourne_housing_FULL.csv"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="part-1---data-cleaning">Part 1 - Data Cleaning</h2>
+
+<ol>
+  <li>Convert arguments in Date column to datetime</li>
+  <li>Filter out data that are not housing types</li>
+</ol>
+
+<p>I will only be focusing on housing data.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Data Cleaning
+</span><span class="n">df_housingfull</span> <span class="o">=</span> <span class="n">df_housingfull</span><span class="p">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">'Lattitude'</span><span class="p">:</span><span class="s">'Latitude'</span><span class="p">})</span> <span class="c1"># Rename column names
+</span>
+<span class="c1"># Remove unrelevant column data
+</span><span class="n">df_housingfull</span> <span class="o">=</span> <span class="n">df_housingfull</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'Suburb'</span><span class="p">,</span> <span class="s">'Address'</span><span class="p">,</span> <span class="s">'SellerG'</span><span class="p">,</span><span class="s">'Regionname'</span><span class="p">,</span> <span class="s">'CouncilArea'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Convert date column to datetime
+</span><span class="n">df_housingfull</span><span class="p">[</span><span class="s">'Date'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_housingfull</span><span class="p">[</span><span class="s">'Date'</span><span class="p">],</span><span class="n">dayfirst</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"There are {} rows and {} columns in this dataframe"</span> <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">df_housingfull</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">df_housingfull</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="c1"># Create new dataframe with only housing data
+</span><span class="n">df</span> <span class="o">=</span> <span class="n">df_housingfull</span><span class="p">[</span><span class="n">df_housingfull</span><span class="p">[</span><span class="s">'Type'</span><span class="p">]</span><span class="o">==</span><span class="s">'h'</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"After filtering data that are not housing types, there are {} rows and {} columns in this new dataframe"</span> <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>There are 34857 rows and 16 columns in this dataframe
+After filtering data that are not housing types, there are 23980 rows and 16 columns in this new dataframe
+</code></pre></div></div>
+
+<h2 id="part-2---data-exploration-using-visualisations">Part 2 - Data Exploration using Visualisations</h2>
+
+<ol>
+  <li>Histogram plot for each variable</li>
+  <li>Pair plots</li>
+  <li>Observe average price change per quarter over the years</li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Plot Relationships between price and features
+</span><span class="n">sns</span><span class="p">.</span><span class="n">set_style</span><span class="p">(</span> <span class="s">'darkgrid'</span> <span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">])</span>
+
+<span class="c1"># Plot 1: Scatterplot of AVerage Price against Date
+</span><span class="n">mean_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">'Date'</span><span class="p">,</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="n">groupby</span><span class="p">(</span><span class="s">'Date'</span><span class="p">).</span><span class="n">mean</span><span class="p">().</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">'Date'</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">'Price'</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">mean_df</span><span class="p">,</span><span class="n">edgecolor</span><span class="o">=</span><span class="s">'b'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="s">'Date'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_ylabel</span><span class="p">(</span> <span class="s">'Price'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span> <span class="s">'Price vs Date'</span><span class="p">)</span>
+
+<span class="c1"># Plot 2: Diagonal Correlation Matrix 
+# Compute the correlation matrix
+</span><span class="n">corr</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">corr</span><span class="p">()</span>
+<span class="c1"># Generate a mask for the upper triangle
+</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">))</span>
+<span class="c1"># Generate a custom diverging colormap
+</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">230</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">as_cmap</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># # Draw the heatmap with the mask and correct aspect ratio
+</span><span class="n">sns</span><span class="p">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">square</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span> <span class="n">cbar_kws</span><span class="o">=</span><span class="p">{</span><span class="s">"shrink"</span><span class="p">:</span> <span class="p">.</span><span class="mi">5</span><span class="p">},</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Date'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Property Count per Suburb'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Property Count vs Date'</span><span class="p">)</span>
+
+<span class="c1"># Plot 3: Boxplot of Price against number of Bathrooms
+</span><span class="n">sns</span><span class="p">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">'Bathroom'</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">'Price'</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span> <span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="s">'Bathroom'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_ylabel</span><span class="p">(</span> <span class="s">'Price'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span> <span class="s">'Price vs Bathroom'</span><span class="p">)</span>
+
+<span class="c1"># Plot 4: Boxplot of Price against number of Bedrooms
+</span><span class="n">sns</span><span class="p">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">'Bedroom2'</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">'Price'</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span> <span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_xlabel</span><span class="p">(</span> <span class="s">'Bedroom'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_ylabel</span><span class="p">(</span> <span class="s">'Price'</span> <span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span> <span class="s">'Price vs Bedroom'</span><span class="p">)</span>
+
+<span class="c1"># Plot 5: Regression plot of Average istance against Average Price
+</span><span class="n">sns</span><span class="p">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">'Distance'</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">'Price'</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">mean_df</span><span class="p">,</span><span class="n">scatter_kws</span><span class="o">=</span><span class="p">{</span><span class="s">"color"</span><span class="p">:</span> <span class="s">"black"</span><span class="p">},</span> <span class="n">line_kws</span><span class="o">=</span><span class="p">{</span><span class="s">"color"</span><span class="p">:</span> <span class="s">"red"</span><span class="p">},</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Distance'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Price'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Price vs Distance'</span><span class="p">)</span>
+
+<span class="c1"># Plot 6: Regression plot of Distance against Price
+</span><span class="n">sns</span><span class="p">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">'Distance'</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s">'Price'</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">scatter_kws</span><span class="o">=</span><span class="p">{</span><span class="s">"color"</span><span class="p">:</span> <span class="s">"black"</span><span class="p">},</span> <span class="n">line_kws</span><span class="o">=</span><span class="p">{</span><span class="s">"color"</span><span class="p">:</span> <span class="s">"red"</span><span class="p">},</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Distance'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Price'</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">].</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Price vs Distance'</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Price vs Distance')
+</code></pre></div></div>
+
+<p><img src="/assets/img/01_LE_MelbourneHousing_files/01_LE_MelbourneHousing_9_1.png" alt="eda plot" /></p>
+
+<p>These visualisations can help to answer the first 2 questions:</p>
+
+<ol>
+  <li>The housing prices in Melbourne appears to begin cooling off sometime between April and July in 2017.</li>
+  <li>Based on the correlation matrix, the top 2 features that affects pricing is the number of Bathrooms, nunber of Bedrooms and distance (kilometres) from CBD. I plotted boxplots to visualise how price varies the number of bedrooms and bathrooms. The boxplot for the number of bedrooms indicate that thereâ€™s quite alot of variability. For distance, I used a regression plot to see how price varies. The plot shows a negative relationship between the two, which is logical since housing near CBD are usually priced higher than those in the outer regions.</li>
+</ol>
+
+<h2 id="part-3---linear-regression-model-with-all-features">Part 3 - Linear Regression Model with all Features</h2>
+
+<p>In this part, I will evaluate the linear regression model using all the available features. The data is split into training and test data with a 2:1 ratio. The coefficient for each predictor variable is subsequently ranked after, showing that longitude, number of bathrooms and the vendor bid method as the top 3 most significant feature in the model.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Further data cleanup
+# Remove missing values
+</span><span class="n">df1</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">dropna</span><span class="p">().</span><span class="n">sort_values</span><span class="p">(</span><span class="s">'Date'</span><span class="p">)</span>
+
+<span class="c1">###########
+##Find out days since start
+</span><span class="n">days_since_start</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="o">-</span><span class="n">df1</span><span class="p">[</span><span class="s">'Date'</span><span class="p">].</span><span class="nb">min</span><span class="p">()).</span><span class="n">days</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df1</span><span class="p">[</span><span class="s">'Date'</span><span class="p">]]</span>
+<span class="n">df1</span><span class="p">[</span><span class="s">'Days'</span><span class="p">]</span> <span class="o">=</span> <span class="n">days_since_start</span>
+
+<span class="c1"># Convert Categorical Variables to dummy/indicator variables
+</span><span class="n">df2_dummies</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df1</span><span class="p">[[</span><span class="s">'Type'</span><span class="p">,</span><span class="s">'Method'</span><span class="p">]])</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df1</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'Type'</span><span class="p">,</span><span class="s">'Date'</span><span class="p">,</span><span class="s">'Method'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="n">join</span><span class="p">(</span><span class="n">df2_dummies</span><span class="p">)</span>
+
+<span class="c1"># Determine x (independent variables or predictor variables) and y (dependent variables) 
+</span><span class="n">y</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s">'Price'</span><span class="p">]</span> <span class="c1"># Price being the dependent variable
+</span><span class="n">x</span> <span class="o">=</span> <span class="n">df2</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'Price'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Remove price from the independent variables
+</span>
+<span class="c1"># Split into training and test set
+</span><span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.33</span><span class="p">)</span>
+
+<span class="c1"># Fit the model
+</span><span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span>
+<span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Evalute the model
+</span><span class="n">ypredictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+
+<span class="c1"># Ranking the coefficients
+</span><span class="n">coeff_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">coef_</span><span class="p">,</span><span class="n">x</span><span class="p">.</span><span class="n">columns</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'Coefficient'</span><span class="p">])</span>
+<span class="n">ranked_coeff</span> <span class="o">=</span> <span class="n">coeff_df</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">"Coefficient"</span><span class="p">,</span> <span class="n">ascending</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ranked_coeff</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                Coefficient
+Longtitude     5.404310e+05
+Bathroom       2.050054e+05
+Rooms          8.073899e+04
+Car            5.194845e+04
+Method_VB      4.878232e+04
+Method_S       3.758929e+04
+Bedroom2       3.111879e+04
+BuildingArea   1.683848e+03
+Method_PI      1.355322e+03
+Postcode       1.044804e+03
+Days           1.491648e+02
+Landsize       6.700705e+01
+Propertycount  1.272204e+00
+Type_h         1.164153e-10
+YearBuilt     -3.213159e+03
+Method_SP     -3.698939e+04
+Method_SA     -5.073755e+04
+Distance      -5.161010e+04
+Latitude      -1.537221e+06
+</code></pre></div></div>
+
+<h3 id="scatter-plot-of-actual-vs-predicted">Scatter Plot of Actual vs Predicted</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig_lm</span><span class="p">,</span><span class="n">axes_lm</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span> <span class="c1"># Create a custom size figure
+</span>
+<span class="c1"># # ax1 = fig_lm.add_subplot() # Add subplot
+</span><span class="n">sns</span><span class="p">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">ypredictions</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span><span class="n">line_kws</span><span class="o">=</span><span class="p">{</span><span class="s">"color"</span><span class="p">:</span><span class="s">"red"</span><span class="p">},</span><span class="n">ax</span><span class="o">=</span><span class="n">axes_lm</span><span class="p">)</span>
+<span class="n">axes_lm</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"Predicted"</span><span class="p">)</span> <span class="c1"># Add x label
+</span><span class="n">axes_lm</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"Observed"</span><span class="p">)</span> <span class="c1"># Add y label
+</span><span class="n">axes_lm</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"Observed vs Predicted"</span><span class="p">)</span>
+</code></pre></div></div>
+<p><img src="/assets/img/01_LE_MelbourneHousing_files/01_LE_MelbourneHousing_14_1.png" alt="observed vs predicted" /></p>
+
+<h3 id="distribution-plot-difference-in-actual-price-and-predicted-price">Distribution plot: difference in actual price and predicted price</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sns</span><span class="p">.</span><span class="n">displot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">y_test</span><span class="o">-</span><span class="n">ypredictions</span><span class="p">),</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+</code></pre></div></div>
+<p><img src="/assets/img/01_LE_MelbourneHousing_files/01_LE_MelbourneHousing_16_1.png" alt="distribution plot" /></p>
+
+<h3 id="evaluating-the-raw-linear-regression-model">Evaluating the Raw Linear Regression model</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"------Evaluated predictions for a raw Linear Regression Model------"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"MAE: "</span><span class="p">,</span> <span class="n">metrics</span><span class="p">.</span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">ypredictions</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"MSE: "</span><span class="p">,</span> <span class="n">metrics</span><span class="p">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">ypredictions</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"RMSE: "</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">metrics</span><span class="p">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">ypredictions</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"R^2 "</span><span class="p">,</span> <span class="n">metrics</span><span class="p">.</span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">ypredictions</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>------Evaluated predictions for a raw Linear Regression Model------
+MAE:  303135.5223904289
+MSE:  211634647505.68866
+RMSE:  460037.6587907654
+R^2  0.5857898755940139
+</code></pre></div></div>
+
+:ET
