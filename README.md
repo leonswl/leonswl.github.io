@@ -29,3 +29,7 @@ Fork the ``master`` branch and follow the [Jekyll Installation Documentation](ht
 ## License
 
 GNU General Public License v3.0
+
+
+Disqus feature was removed. To include it back, insert '{% include disqus.html %}'back to post.html at the end of '<div class="page-footer" >'
+
