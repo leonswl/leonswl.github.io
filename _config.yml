@@ -9,9 +9,7 @@ site-twitter: #if your site has a twitter account, enter it here
 # Author Settings
 author: Leon Sun # add your name
 author-img: '/leon-small.jpg' # add your photo
-about-author: I am a data analyst who enjoys spending my free time finding interesting projects to work on. 
-I'm currently a product analyst at Yara, focusing on buildin data insights to empower app development.
-I'm proficient in python, SQL and R. # add description
+about-author: I am a data analyst who enjoys spending my free time finding interesting projects to work on. I'm currently a product analyst at Yara, focusing on building data insights to empower app development. Proficient in python, SQL and R! # add description
 # social-twitter: # add your Twitter handle
 # social-facebook: # add your Facebook handle
 social-github: leonswl # add your Github handle

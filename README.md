@@ -1,35 +1,12 @@
-# Flexible-Jekyll is a simple and clean theme for Jekyll
+# Personal Github Page Portfolio
 
-![](https://github.com/artemsheludko/flexible-jekyll/blob/master/assets/img/promo-img.jpg?raw=true)
+Hello, if you are here that means you have chanced upon my own personal portfolio! A little bit about myself - I'm Leon, an aspiring data analyst proficient in python, SQL and R :) Drop me a message anytime for engaging conversations!
 
-## Demo
-
-Check the theme in action [Demo](https://artemsheludko.github.io/flexible-jekyll/)
-
-The main page would look like this:
-
-![Main page preview](https://github.com/artemsheludko/flexible-jekyll/blob/master/assets/img/home-page.jpg?raw=true)
-
-The post page would look like this:
-
-![Post page preview](https://github.com/artemsheludko/flexible-jekyll/blob/master/assets/img/post-example.jpg?raw=true)
-
-## Features
-
-- [Google Fonts](https://fonts.google.com/)
-- [Font Awesome](http://fontawesome.io/)
-- [Disqus](https://disqus.com/)
-- [Analytics](https://analytics.google.com/analytics/web/)
-- Support Emoji
-
-## Installation:
-
-Fork the ``master`` branch and follow the [Jekyll Installation Documentation](https://jekyllrb.com/docs/installation/).
+I created this portfolio while forking a template from [artemsheludko](https://github.com/artemsheludko/flexible-jekyll). Do check them out their awesome template! 
 
 ## License
-
 GNU General Public License v3.0
 
-
+## Personal Notes
 Disqus feature was removed. To include it back, insert '{% include disqus.html %}'back to post.html at the end of '<div class="page-footer" >'
 
