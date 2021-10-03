@@ -234,7 +234,7 @@ Distribution plot: difference in actual price and predicted price
 sns.displot(data=(y_test-ypredictions),bins=50)
 ```
     
-![Distribution Plot](assets/img/01_LE_MelbourneHousing_2_files/01_LE_MelbourneHousing_2_14_1.png)
+![Distribution Plot](/assets/img/01_LE_MelbourneHousing_2_files/01_LE_MelbourneHousing_2_14_1.png)
     
 
 (End of Part 1)
