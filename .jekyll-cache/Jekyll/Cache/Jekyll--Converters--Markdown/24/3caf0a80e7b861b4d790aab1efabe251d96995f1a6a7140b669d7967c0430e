@@ -1,0 +1,1099 @@
+I"'<p>Scrapping app reviews for Syfe, Endowus and Stashaway from Google Play and Apple Store.</p>
+
+<p>Part 1: Scrap reviews from Apple Store<br />
+Part 2: Scrap reviews from Google Play Store<br />
+Part 3: Combining both reviews</p>
+
+<p>Reference:</p>
+<ul>
+  <li>Apple Store Scrapper: https://python.plainenglish.io/scraping-app-store-reviews-with-python-90e4117ccdfb</li>
+  <li>Google Play Store Scraper: https://python.plainenglish.io/scraping-storing-google-play-app-reviews-with-python-5640c933c476</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Importing relevant libraries
+</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="c1"># for scraping app info from App Store
+</span><span class="kn">from</span> <span class="nn">itunes_app_scraper.scraper</span> <span class="kn">import</span> <span class="n">AppStoreScraper</span>
+
+<span class="c1"># for scraping app reviews from App Store
+</span><span class="kn">from</span> <span class="nn">app_store_scraper</span> <span class="kn">import</span> <span class="n">AppStore</span>
+
+<span class="c1"># for pretty printing data structures
+</span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="c1"># for keeping track of timing
+</span><span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="n">dt</span>
+<span class="kn">from</span> <span class="nn">tzlocal</span> <span class="kn">import</span> <span class="n">get_localzone</span>
+
+<span class="c1"># for building in wait times
+</span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/Users/a844133yara.com/.pyenv/versions/3.9.5/envs/python_playground/lib/python3.9/site-packages/pandas/compat/__init__.py:124: UserWarning: Could not import the lzma module. Your installed Python is incomplete. Attempting to use lzma compression will result in a RuntimeError.
+  warnings.warn(msg)
+</code></pre></div></div>
+
+<h1 id="part-1---scrap-reviews-from-apple-store">Part 1 - Scrap reviews from Apple Store</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Read in file containing app names and IDs
+</span><span class="n">apple_app_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s">'app_info.xlsx'</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s">'apple'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"""
+Printing first few rows of app's info in the csv file:
+------------------------------------------------------
+</span><span class="si">{</span><span class="n">apple_app_df</span><span class="p">.</span><span class="n">head</span><span class="p">()</span><span class="si">}</span><span class="s">
+"""</span><span class="p">)</span>
+
+<span class="c1">## Get list of app names and app IDs
+</span><span class="n">apple_app_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">apple_app_df</span><span class="p">[</span><span class="s">'app_name'</span><span class="p">])</span>
+<span class="n">apple_app_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">apple_app_df</span><span class="p">[</span><span class="s">'iOS_app_id'</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Printing first few rows of app's info in the csv file:
+------------------------------------------------------
+    app_name                 iOS_app_name  iOS_app_id
+0       Syfe           syfe-invest-better  1497156434
+1    Endowus  endowus-invest-cpf-srs-cash  1531067679
+2  StashAway    stashaway-invest-and-save  1229966330
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Set up App Store Scraper
+</span><span class="n">scraper</span> <span class="o">=</span> <span class="n">AppStoreScraper</span><span class="p">()</span>
+<span class="n">apple_app_store_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">scraper</span><span class="p">.</span><span class="n">get_multiple_app_details</span><span class="p">(</span><span class="n">apple_app_ids</span><span class="p">))</span>
+
+<span class="c1">## Pretty print the data for the first app
+</span><span class="n">pprint</span><span class="p">(</span><span class="n">apple_app_store_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://itunes.apple.com/lookup?id=1497156434&amp;country=nl&amp;entity=software
+https://itunes.apple.com/lookup?id=1531067679&amp;country=nl&amp;entity=software
+https://itunes.apple.com/lookup?id=1229966330&amp;country=nl&amp;entity=software
+{'advisories': '',
+ 'appletvScreenshotUrls': '',
+ 'artistId': 1497156433,
+ 'artistName': 'Syfe Pte. Ltd.',
+ 'artistViewUrl': 'https://apps.apple.com/nl/developer/syfe-pte-ltd/id1497156433?uo=4',
+ 'artworkUrl100': 'https://is4-ssl.mzstatic.com/image/thumb/Purple115/v4/6b/56/2e/6b562e57-e6e9-6354-1a64-632570e25c9b/source/100x100bb.jpg',
+ 'artworkUrl512': 'https://is4-ssl.mzstatic.com/image/thumb/Purple115/v4/6b/56/2e/6b562e57-e6e9-6354-1a64-632570e25c9b/source/512x512bb.jpg',
+ 'artworkUrl60': 'https://is4-ssl.mzstatic.com/image/thumb/Purple115/v4/6b/56/2e/6b562e57-e6e9-6354-1a64-632570e25c9b/source/60x60bb.jpg',
+ 'averageUserRating': 0,
+ 'averageUserRatingForCurrentVersion': 0,
+ 'bundleId': 'com.syfe',
+ 'contentAdvisoryRating': '4+',
+ 'currency': 'EUR',
+ 'currentVersionReleaseDate': '2021-09-01T13:39:01Z',
+ 'description': 'Whether you plan to buy a house, save up for your children’s '
+                'education, retire or simply grow your wealth, we have '
+                'portfolios that caters to your different financial goals:\n'
+                '\n'
+                '1. Syfe Core: All-in-one portfolios diversified across top '
+                'global stock, bond and gold ETFs that track popular indexes '
+                'such as S&amp;P 500, NASDAQ and more\n'
+                '\n'
+                '- Core Equity100: for those seeking 100% exposure to global '
+                'equities and comfortable with taking higher risk for '
+                'potential higher long-term returns\n'
+                '- Core Growth: for those seeking higher return potential and '
+                'long-term growth\n'
+                '- Core Balanced: for those seeking income and long-term '
+                'growth\n'
+                '- Core Defensive: for those seeking stable returns and '
+                'long-term income\n'
+                '\n'
+                '2. Syfe REIT+: Passive Income Portfolio\n'
+                '\n'
+                '- REIT+: for those seeking to invest in Singapore’s largest '
+                'real estate investment trusts (REITs) such as Ascendas REITs, '
+                'CapitaLand Integrated Commercial Trust, Mapletree Commercial '
+                'Trust, and more.\n'
+                '\n'
+                '3. Syfe Cash+: Cash Management Portfolio\n'
+                '\n'
+                '- Cash+: for those seeking higher returns on their savings '
+                'than at banks with a 1.5% p.a. projected return\n'
+                '\n'
+                'OUR APP FEATURES\n'
+                'Investing should be easy and quick. With the Syfe app, you '
+                'can enjoy seamless investing and the benefits of:\n'
+                '\n'
+                '- Investing in minutes. Easily add however many portfolios '
+                'you want and conveniently transfer your funds between '
+                'portfolios\n'
+                '- Monitoring your investments at a glance. See how well your '
+                'investments are performing, your returns and easily track the '
+                'dividends you have received\n'
+                '- Making it your own. Get access to over 100 curated ETFs and '
+                'Funds and customise your own asset allocations to express '
+                'your own investment convictions. \n'
+                '- Learning as you go. Explore our collection of research '
+                'guides, expert advice commentary, webinars and magazines – '
+                'filled with the latest financial news\n'
+                '- Scheduling calls for personalised wealth guidance. Access '
+                'our team of wealth experts, who are dedicated to ensuring you '
+                'make smarter decisions about your personal finances\n'
+                '\n'
+                'WHY INVESTORS CHOOSE SYFE\n'
+                'Join an ever growing number of investors that invest with '
+                'Syfe and take advantage of our offerings now:\n'
+                '\n'
+                '- Simple, transparent pricing. Enjoy no brokerage fees, no '
+                'entry fees, no withdrawal fees and no hidden charges. We '
+                'charge one simple fee: an all-inclusive annual fee of 0.4% to '
+                '0.65% on your invested capital. That’s all.\n'
+                '- Access a wide range of asset classes, countries and '
+                'sectors. Ranging from portfolios that invest in the '
+                'fastest-growing economies such as China to leading companies '
+                'such as Google, Microsoft, Tencent and more, we have all your '
+                'bases covered.\n'
+                '- Great for beginners, experts and everyone in between. Even '
+                'if you’re not sure how to invest, we’ll help you realise your '
+                'financial goals with our risk questionnaire and recommend the '
+                'portfolio that is best suited for your goals.\n'
+                '\n'
+                'AS FEATURED BY\n'
+                'Hear from industry leaders:\n'
+                '\n'
+                '“Better than DIY” - MoneySmart\n'
+                '“12 Investment Apps to Multiply Your Savings” - '
+                'TheSmartLocal\n'
+                '“Good for dollar cost averaging and accumulation” - '
+                'InvestmentMoats\n'
+                '\n'
+                'REACH OUT TO US\n'
+                'Please contact us if you have any queries via:\n'
+                '\n'
+                '- Our Live Chat service on the Syfe app and web dashboard\n'
+                '- Email at support@syfe.com\n'
+                '- Call us at +65 3138 1215 between 9:00 am and 6:00 pm Monday '
+                'through Friday\n'
+                '\n'
+                'MAS Capital Markets Services (CMS) License - CMS100837. '
+                'Located at 4 Robinson Rd, #11-01 The House Of Eden, Singapore '
+                '048543.',
+ 'features': '',
+ 'fileSizeBytes': '45821952',
+ 'formattedPrice': 'Gratis',
+ 'genreIds': '6015',
+ 'genres': 'Financiën',
+ 'ipadScreenshotUrls': '',
+ 'isGameCenterEnabled': False,
+ 'isVppDeviceBasedLicensingEnabled': True,
+ 'kind': 'software',
+ 'languageCodesISO2A': 'EN',
+ 'minimumOsVersion': '11.0',
+ 'price': 0.0,
+ 'primaryGenreId': 6015,
+ 'primaryGenreName': 'Finance',
+ 'releaseDate': '2020-02-24T08:00:00Z',
+ 'releaseNotes': '1. See statuses for various transactions - withdrawals, fund '
+                 'transfers and new funds added\n'
+                 '2. Download new and past monthly statements from account '
+                 'settings\n'
+                 '3. See more detailed information on portfolios when adding '
+                 'new portfolios\n'
+                 '4. Minor fixes and performance improvements',
+ 'screenshotUrls': 'https://is5-ssl.mzstatic.com/image/thumb/PurpleSource125/v4/0a/6a/87/0a6a8739-4307-6a2c-51d7-779702ca47d8/5fefcd46-1669-4c46-a1b6-c00f72443d37_card_1.jpg/392x696bb.jpg,https://is4-ssl.mzstatic.com/image/thumb/PurpleSource115/v4/83/0a/75/830a756b-eef4-bcb4-64cc-114e256664c5/f67a8afd-c5b3-41ed-ba2f-f68eda51fbaf_card_2.jpg/392x696bb.jpg,https://is5-ssl.mzstatic.com/image/thumb/PurpleSource115/v4/3f/87/75/3f877564-f390-df52-b2cf-35b5b9e39d60/520391b1-45d1-4237-91cb-979a953ea3f8_card_3.jpg/392x696bb.jpg,https://is1-ssl.mzstatic.com/image/thumb/PurpleSource125/v4/1b/9c/23/1b9c23bb-789b-6e9b-b49d-79e699bb729a/d8186c68-20af-40fa-8ac7-d8f62a526e07_card_4.jpg/392x696bb.jpg,https://is5-ssl.mzstatic.com/image/thumb/PurpleSource125/v4/4d/43/e1/4d43e185-bf4b-9cb9-9c35-a47cf194ad33/3e7009c4-bf73-49e0-aca5-ea5baf856a64_card_5.jpg/392x696bb.jpg,https://is4-ssl.mzstatic.com/image/thumb/PurpleSource125/v4/95/a2/ac/95a2ac4e-2641-0c4d-c435-f86f563d26fe/f06d1673-5240-4b6e-a29b-e7d21be00eba_card_6.jpg/392x696bb.jpg,https://is4-ssl.mzstatic.com/image/thumb/PurpleSource125/v4/81/ec/5b/81ec5bbf-3bae-5a5c-10da-44a985f1e14e/b3d6acd1-074d-4c01-bf89-1440c7f5cd48_card_7.jpg/392x696bb.jpg,https://is1-ssl.mzstatic.com/image/thumb/PurpleSource125/v4/b9/c4/4a/b9c44abc-dd88-6192-0a24-72667887f3ab/532d64a2-f6c3-4e7a-8b4b-6028664e92c1_card_8.jpg/392x696bb.jpg',
+ 'sellerName': 'Svava Pte Ltd',
+ 'sellerUrl': 'https://www.syfe.com',
+ 'supportedDevices': 'iPhone5s-iPhone5s,iPadAir-iPadAir,iPadAirCellular-iPadAirCellular,iPadMiniRetina-iPadMiniRetina,iPadMiniRetinaCellular-iPadMiniRetinaCellular,iPhone6-iPhone6,iPhone6Plus-iPhone6Plus,iPadAir2-iPadAir2,iPadAir2Cellular-iPadAir2Cellular,iPadMini3-iPadMini3,iPadMini3Cellular-iPadMini3Cellular,iPodTouchSixthGen-iPodTouchSixthGen,iPhone6s-iPhone6s,iPhone6sPlus-iPhone6sPlus,iPadMini4-iPadMini4,iPadMini4Cellular-iPadMini4Cellular,iPadPro-iPadPro,iPadProCellular-iPadProCellular,iPadPro97-iPadPro97,iPadPro97Cellular-iPadPro97Cellular,iPhoneSE-iPhoneSE,iPhone7-iPhone7,iPhone7Plus-iPhone7Plus,iPad611-iPad611,iPad612-iPad612,iPad71-iPad71,iPad72-iPad72,iPad73-iPad73,iPad74-iPad74,iPhone8-iPhone8,iPhone8Plus-iPhone8Plus,iPhoneX-iPhoneX,iPad75-iPad75,iPad76-iPad76,iPhoneXS-iPhoneXS,iPhoneXSMax-iPhoneXSMax,iPhoneXR-iPhoneXR,iPad812-iPad812,iPad834-iPad834,iPad856-iPad856,iPad878-iPad878,iPadMini5-iPadMini5,iPadMini5Cellular-iPadMini5Cellular,iPadAir3-iPadAir3,iPadAir3Cellular-iPadAir3Cellular,iPodTouchSeventhGen-iPodTouchSeventhGen,iPhone11-iPhone11,iPhone11Pro-iPhone11Pro,iPadSeventhGen-iPadSeventhGen,iPadSeventhGenCellular-iPadSeventhGenCellular,iPhone11ProMax-iPhone11ProMax,iPhoneSESecondGen-iPhoneSESecondGen,iPadProSecondGen-iPadProSecondGen,iPadProSecondGenCellular-iPadProSecondGenCellular,iPadProFourthGen-iPadProFourthGen,iPadProFourthGenCellular-iPadProFourthGenCellular,iPhone12Mini-iPhone12Mini,iPhone12-iPhone12,iPhone12Pro-iPhone12Pro,iPhone12ProMax-iPhone12ProMax,iPadAir4-iPadAir4,iPadAir4Cellular-iPadAir4Cellular,iPadEighthGen-iPadEighthGen,iPadEighthGenCellular-iPadEighthGenCellular,iPadProThirdGen-iPadProThirdGen,iPadProThirdGenCellular-iPadProThirdGenCellular,iPadProFifthGen-iPadProFifthGen,iPadProFifthGenCellular-iPadProFifthGenCellular',
+ 'trackCensoredName': 'Syfe: Invest Better',
+ 'trackContentRating': '4+',
+ 'trackId': 1497156434,
+ 'trackName': 'Syfe: Invest Better',
+ 'trackViewUrl': 'https://apps.apple.com/nl/app/syfe-invest-better/id1497156434?uo=4',
+ 'userRatingCount': 0,
+ 'userRatingCountForCurrentVersion': 0,
+ 'version': '4.80',
+ 'wrapperType': 'software'}
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Converting list into dataframe
+</span><span class="n">apple_app_info_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">apple_app_store_list</span><span class="p">)</span>
+<span class="n">apple_app_info_df</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>artworkUrl60</th>
+      <th>artworkUrl100</th>
+      <th>artistViewUrl</th>
+      <th>screenshotUrls</th>
+      <th>ipadScreenshotUrls</th>
+      <th>artworkUrl512</th>
+      <th>appletvScreenshotUrls</th>
+      <th>supportedDevices</th>
+      <th>advisories</th>
+      <th>isGameCenterEnabled</th>
+      <th>...</th>
+      <th>currency</th>
+      <th>description</th>
+      <th>artistId</th>
+      <th>artistName</th>
+      <th>genres</th>
+      <th>price</th>
+      <th>bundleId</th>
+      <th>version</th>
+      <th>wrapperType</th>
+      <th>userRatingCount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://apps.apple.com/nl/developer/syfe-pte-l...</td>
+      <td>https://is5-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td></td>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td></td>
+      <td>iPhone5s-iPhone5s,iPadAir-iPadAir,iPadAirCellu...</td>
+      <td></td>
+      <td>False</td>
+      <td>...</td>
+      <td>EUR</td>
+      <td>Whether you plan to buy a house, save up for y...</td>
+      <td>1497156433</td>
+      <td>Syfe Pte. Ltd.</td>
+      <td>Financiën</td>
+      <td>0.0</td>
+      <td>com.syfe</td>
+      <td>4.80</td>
+      <td>software</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://apps.apple.com/nl/developer/endowus/id...</td>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td></td>
+      <td>https://is4-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td></td>
+      <td>iPhone5s-iPhone5s,iPadAir-iPadAir,iPadAirCellu...</td>
+      <td></td>
+      <td>False</td>
+      <td>...</td>
+      <td>EUR</td>
+      <td>Thousands invest and grow their Cash, CPF &amp; SR...</td>
+      <td>1531067681</td>
+      <td>Endowus</td>
+      <td>Financiën,Lifestyle</td>
+      <td>0.0</td>
+      <td>com.endowus.mobileapp</td>
+      <td>1.3.1</td>
+      <td>software</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>https://is1-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://is1-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://apps.apple.com/nl/developer/asia-wealt...</td>
+      <td>https://is2-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://is1-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td>https://is1-ssl.mzstatic.com/image/thumb/Purpl...</td>
+      <td></td>
+      <td>iPhone5s-iPhone5s,iPadAir-iPadAir,iPadAirCellu...</td>
+      <td></td>
+      <td>False</td>
+      <td>...</td>
+      <td>EUR</td>
+      <td>StashAway is where intelligent investing meets...</td>
+      <td>1229625364</td>
+      <td>Asia Wealth Platform Pte Ltd</td>
+      <td>Financiën</td>
+      <td>0.0</td>
+      <td>com.awp.stashaway</td>
+      <td>11.95.2</td>
+      <td>software</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>3 rows × 44 columns</p>
+</div>
+
+<p>Given that there are no user rating counts, we can ignore itunes ratings in our analysis.</p>
+
+<h2 id="scrapping-app-reviews-from-apple-store">Scrapping App Reviews from Apple Store</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Empty list for storing reviews
+</span><span class="n">apple_app_reviews</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1">## Set up loop to go through all apps
+</span><span class="k">for</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">app_id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">apple_app_names</span><span class="p">,</span> <span class="n">apple_app_ids</span><span class="p">):</span>
+    
+    <span class="c1"># Get start time
+</span>    <span class="n">start</span> <span class="o">=</span> <span class="n">dt</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">get_localzone</span><span class="p">())</span>
+    <span class="n">fmt</span><span class="o">=</span> <span class="s">"%m/%d/%y - %T %p"</span>
+    
+    <span class="c1"># Print starting output for app
+</span>    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>    
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'***** </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s"> started at </span><span class="si">{</span><span class="n">start</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    
+    <span class="c1"># Instantiate AppStore for app
+</span>    <span class="n">app_</span> <span class="o">=</span> <span class="n">AppStore</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="s">'sg'</span><span class="p">,</span> <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span> <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span>
+    
+    <span class="c1"># Scrape reviews posted since February 28, 2020 and limit to 10,000 reviews
+</span>    <span class="n">app_</span><span class="p">.</span><span class="n">review</span><span class="p">(</span><span class="n">how_many</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+                <span class="n">after</span><span class="o">=</span><span class="n">dt</span><span class="p">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span>
+                <span class="n">sleep</span><span class="o">=</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">))</span>
+    
+    <span class="n">reviews</span> <span class="o">=</span> <span class="n">app_</span><span class="p">.</span><span class="n">reviews</span>
+    
+    <span class="c1"># Add keys to store information about which app each review is for
+</span>    <span class="k">for</span> <span class="n">rvw</span> <span class="ow">in</span> <span class="n">reviews</span><span class="p">:</span>
+        <span class="n">rvw</span><span class="p">[</span><span class="s">'app_name'</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_name</span>
+        <span class="n">rvw</span><span class="p">[</span><span class="s">'app_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_id</span>
+    
+    <span class="c1"># Print update that scraping was completed
+</span>    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"""Done scraping </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s">. 
+    Scraped a total of </span><span class="si">{</span><span class="n">app_</span><span class="p">.</span><span class="n">reviews_count</span><span class="si">}</span><span class="s"> reviews.</span><span class="se">\n</span><span class="s">"""</span><span class="p">)</span>
+
+     <span class="c1"># Convert list of dicts to Pandas DataFrame
+</span>    <span class="n">review_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">reviews</span><span class="p">)</span>
+    <span class="n">apple_app_reviews</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">review_df</span><span class="p">)</span>
+    
+    <span class="c1"># Get end time
+</span>    <span class="n">end</span> <span class="o">=</span> <span class="n">dt</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">get_localzone</span><span class="p">())</span>
+    
+    <span class="c1"># Print ending output for app
+</span>    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"""Successfully wrote </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s"> reviews to df
+    at </span><span class="si">{</span><span class="n">end</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span><span class="si">}</span><span class="s">.</span><span class="se">\n</span><span class="s">"""</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Time elapsed for </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s">: </span><span class="si">{</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    
+    <span class="c1"># Wait 5 to 10 seconds to start scraping next app
+</span>    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>------------------------------------------------------------
+------------------------------------------------------------
+***** Syfe started at 09/04/21 - 23:19:19 PM
+
+
+
+2021-09-04 23:19:21,123 [INFO] Base - Initialised: AppStore('sg', 'syfe', 1497156434)
+2021-09-04 23:19:21,124 [INFO] Base - Ready to fetch reviews from: https://apps.apple.com/sg/app/syfe/id1497156434
+2021-09-04 23:19:41,173 [INFO] Base - [id:1497156434] Fetched 20 reviews (20 fetched in total)
+2021-09-04 23:20:21,540 [INFO] Base - [id:1497156434] Fetched 57 reviews (57 fetched in total)
+2021-09-04 23:20:21,834 [INFO] Base - [id:1497156434] Fetched 64 reviews (64 fetched in total)
+
+
+Done scraping Syfe. 
+    Scraped a total of 64 reviews.
+
+Successfully wrote Syfe reviews to df
+    at 09/04/21 - 23:20:21 PM.
+
+Time elapsed for Syfe: 0:01:02.025785
+------------------------------------------------------------
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+------------------------------------------------------------
+***** Endowus started at 09/04/21 - 23:20:29 PM
+
+
+
+2021-09-04 23:20:31,468 [INFO] Base - Initialised: AppStore('sg', 'endowus', 1531067679)
+2021-09-04 23:20:31,470 [INFO] Base - Ready to fetch reviews from: https://apps.apple.com/sg/app/endowus/id1531067679
+2021-09-04 23:20:54,512 [INFO] Base - [id:1531067679] Fetched 20 reviews (20 fetched in total)
+2021-09-04 23:21:41,308 [INFO] Base - [id:1531067679] Fetched 60 reviews (60 fetched in total)
+2021-09-04 23:21:41,712 [INFO] Base - [id:1531067679] Fetched 70 reviews (70 fetched in total)
+
+
+Done scraping Endowus. 
+    Scraped a total of 70 reviews.
+
+Successfully wrote Endowus reviews to df
+    at 09/04/21 - 23:21:41 PM.
+
+Time elapsed for Endowus: 0:01:11.872447
+------------------------------------------------------------
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+------------------------------------------------------------
+***** StashAway started at 09/04/21 - 23:21:48 PM
+
+
+
+2021-09-04 23:21:50,044 [INFO] Base - Initialised: AppStore('sg', 'stashaway', 1229966330)
+2021-09-04 23:21:50,045 [INFO] Base - Ready to fetch reviews from: https://apps.apple.com/sg/app/stashaway/id1229966330
+2021-09-04 23:22:12,087 [INFO] Base - [id:1229966330] Fetched 17 reviews (17 fetched in total)
+2021-09-04 23:22:56,189 [INFO] Base - [id:1229966330] Fetched 50 reviews (50 fetched in total)
+2021-09-04 23:23:40,312 [INFO] Base - [id:1229966330] Fetched 83 reviews (83 fetched in total)
+2021-09-04 23:24:24,429 [INFO] Base - [id:1229966330] Fetched 119 reviews (119 fetched in total)
+2021-09-04 23:25:08,547 [INFO] Base - [id:1229966330] Fetched 146 reviews (146 fetched in total)
+2021-09-04 23:25:52,710 [INFO] Base - [id:1229966330] Fetched 180 reviews (180 fetched in total)
+2021-09-04 23:26:36,814 [INFO] Base - [id:1229966330] Fetched 213 reviews (213 fetched in total)
+2021-09-04 23:27:21,477 [INFO] Base - [id:1229966330] Fetched 244 reviews (244 fetched in total)
+2021-09-04 23:28:06,102 [INFO] Base - [id:1229966330] Fetched 273 reviews (273 fetched in total)
+2021-09-04 23:28:50,685 [INFO] Base - [id:1229966330] Fetched 309 reviews (309 fetched in total)
+2021-09-04 23:29:35,230 [INFO] Base - [id:1229966330] Fetched 337 reviews (337 fetched in total)
+2021-09-04 23:30:19,753 [INFO] Base - [id:1229966330] Fetched 366 reviews (366 fetched in total)
+2021-09-04 23:31:04,274 [INFO] Base - [id:1229966330] Fetched 390 reviews (390 fetched in total)
+2021-09-04 23:31:04,524 [INFO] Base - [id:1229966330] Fetched 390 reviews (390 fetched in total)
+
+
+Done scraping StashAway. 
+    Scraped a total of 390 reviews.
+
+Successfully wrote StashAway reviews to df
+    at 09/04/21 - 23:31:04 PM.
+
+Time elapsed for StashAway: 0:09:15.818408
+------------------------------------------------------------
+------------------------------------------------------------
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1"># Convert list of dfs to Pandas DataFrame and write to csv
+</span><span class="n">apple_reviews</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">(</span><span class="n">apple_app_reviews</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h1 id="part-2---scrap-reviews-from-google-play-store">Part 2 - Scrap reviews from Google Play Store</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Extracting data and relevant app names + Ids
+</span><span class="n">google_app_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s">'app_info.xlsx'</span><span class="p">,</span><span class="n">sheet_name</span><span class="o">=</span><span class="s">'google'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">google_app_df</span><span class="p">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1">## Get list of app names and app IDs
+</span><span class="n">google_app_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">google_app_df</span><span class="p">[</span><span class="s">'app_name'</span><span class="p">])</span>
+<span class="n">google_app_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">google_app_df</span><span class="p">[</span><span class="s">'app_id'</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    app_name                 app_id
+0       Syfe               com.syfe
+1    Endowus  com.endowus.mobileapp
+2  StashAway      com.awp.stashaway
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Loop through app IDs to get app info
+</span><span class="n">google_app_info</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">google_app_ids</span><span class="p">:</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">app</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">info</span><span class="p">[</span><span class="s">'comments'</span><span class="p">]</span>
+    <span class="n">google_app_info</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+<span class="c1">## Pretty print the data for the first app
+</span><span class="n">pprint</span><span class="p">(</span><span class="n">google_app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">google_app_infos</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">google_app_info</span><span class="p">)</span>
+<span class="c1"># app_infos_df.to_csv('apps.csv', index=None, header=True)
+</span><span class="n">google_app_infos</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{'adSupported': None,
+ 'androidVersion': '5.0',
+ 'androidVersionText': '5.0 and up',
+ 'appId': 'com.syfe',
+ 'containsAds': False,
+ 'contentRating': 'Everyone',
+ 'contentRatingDescription': None,
+ 'currency': 'USD',
+ 'description': 'Invest better, faster and smarter with Syfe. Syfe is a '
+                'digital wealth manager for investors who expect more – '
+                'greater transparency, smart\xader personalised portfolios, '
+                'and better investment outcomes.\r\n'
+                '\r\n'
+                'As one of Singapore’s fastest-growing robo advisors, we do '
+                'all the heavy lifting for you, from fund selection, '
+                'reinvesting dividends to rebalancing your portfolios and '
+                'more! All you have to do is sit back and watch your money '
+                'grow. Our digital investment advisor platform offers a '
+                "smarter way to invest with low fees and no minimums. We're "
+                'also licensed by the MAS, rest assured your money is safe '
+                'with us!\r\n'
+                '\r\n'
+                '\r\n'
+                'PORTFOLIOS FOR EVERYONE\r\n'
+                'Whether you plan to buy a house, save up for your children’s '
+                'education, retire or simply grow your wealth, we have '
+                'portfolios that caters to your different financial goals:\r\n'
+                '\r\n'
+                '1. Syfe Core: All-in-one portfolios diversified across top '
+                'global stock, bond and gold ETFs that track popular indexes '
+                'such as S&amp;P 500, NASDAQ and more\r\n'
+                '\r\n'
+                '- Core Growth: for those seeking higher return potential and '
+                'long-term growth\r\n'
+                '- Core Balanced: for those seeking income and long-term '
+                'growth\r\n'
+                '- Core Defensive: for those seeking stable returns and '
+                'long-term income\r\n'
+                '- Global ARI: for those seeking to diversify with 11 risk '
+                'level options to choose from\r\n'
+                '\r\n'
+                '2. Syfe REIT+: Passive Income Portfolio\r\n'
+                '\r\n'
+                '- REIT+: For those seeking to invest in Singapore’s largest '
+                'real estate investment trusts (REITs) such as Ascendas REITs, '
+                'CapitaLand Integrated Commercial Trust, Mapletree Commercial '
+                'Trust, and more.\r\n'
+                '\r\n'
+                '3. Syfe Equity100: Pure Equity Portfolio \r\n'
+                '\r\n'
+                '- Equity100: For those seeking 100% exposure to global '
+                'equities. Gain access to 1,500+ stocks in the world’s best '
+                'companies from leading sectors such as technology and '
+                'healthcare\r\n'
+                '\r\n'
+                '4. Syfe Cash+: Cash Management Portfolio\r\n'
+                '\r\n'
+                '- Cash+: for those seeking higher returns on their savings '
+                'than at banks with a 1.75% p.a. projected return\r\n'
+                '\r\n'
+                'OUR APP FEATURES\r\n'
+                'Investing should be easy and quick. With the Syfe app, you '
+                'can enjoy seamless investing and the benefits of:\r\n'
+                '\r\n'
+                '- Investing in minutes. Easily add however many portfolios '
+                'you want and conveniently transfer your funds between '
+                'portfolios\r\n'
+                '- Monitoring your investments at a glance. See how well your '
+                'investments are performing, your returns and easily track the '
+                'dividends you have received\r\n'
+                '- Learning as you go. Explore our collection of research '
+                'guides, expert advice commentary, webinars and magazines – '
+                'filled with the latest financial news\r\n'
+                '- Scheduling calls for personalised wealth guidance. Access '
+                'our team of wealth experts, who are dedicated to ensuring you '
+                'make smarter decisions about your personal finances\r\n'
+                '\r\n'
+                'WHY INVESTORS CHOOSE SYFE\r\n'
+                'Join an evergrowing number of investors that invest with Syfe '
+                'and take advantage of our offerings now:\r\n'
+                '\r\n'
+                '- Simple, transparent pricing. Enjoy no brokerage fees, no '
+                'entry fees, no withdrawal fees and no hidden charges. We '
+                'charge one simple fee: an all-inclusive annual fee of 0.4% to '
+                '0.65% on your invested capital. That’s all.\r\n'
+                '- Access a wide range of asset classes, countries and '
+                'sectors. Ranging from portfolios that invest in the '
+                'fastest-growing economies such as China to leading companies '
+                'such as Google, Microsoft, Tencent and more, we have all your '
+                'bases covered.\r\n'
+                '- Great for beginners, experts and everyone in between. Even '
+                'if you’re not sure how to invest, we’ll help you realise your '
+                'financial goals with our risk questionnaire and recommend the '
+                'portfolio that is best suited for your goals.\r\n'
+                '\r\n'
+                'AS FEATURED BY\r\n'
+                'Hear from industry leaders:\r\n'
+                '\r\n'
+                '“Better than DIY” - MoneySmart\r\n'
+                '“12 Investment Apps to Multiply Your Savings” - '
+                'TheSmartLocal\r\n'
+                '“Good for dollar cost averaging and accumulation” - '
+                'InvestmentMoats\r\n'
+                '\r\n'
+                'REACH OUT TO US\r\n'
+                'Please contact us if you have any queries via:\r\n'
+                '\r\n'
+                '- Our Live Chat service on the Syfe app and web dashboard\r\n'
+                '- Email at support@syfe.com\r\n'
+                '- Call us at +65 3138 1215 between 9:00 am and 6:00 pm Monday '
+                'through Friday\r\n'
+                '\r\n'
+                '\r\n'
+                'MAS Capital Markets Services (CMS) License - CMS100837. '
+                'Located at 4 Robinson Rd, #11-01 The House Of Eden, Singapore '
+                '048543.',
+ 'descriptionHTML': 'Invest better, faster and smarter with Syfe. Syfe is a '
+                    'digital wealth manager for investors who expect more – '
+                    'greater transparency, smart\xader personalised '
+                    'portfolios, and better investment outcomes.&lt;br&gt;&lt;br&gt;As one '
+                    'of Singapore’s fastest-growing robo advisors, we do all '
+                    'the heavy lifting for you, from fund selection, '
+                    'reinvesting dividends to rebalancing your portfolios and '
+                    'more! All you have to do is sit back and watch your money '
+                    'grow. Our digital investment advisor platform offers a '
+                    'smarter way to invest with low fees and no minimums. '
+                    'We&amp;#39;re also licensed by the MAS, rest assured your '
+                    'money is safe with us!&lt;br&gt;&lt;br&gt;&lt;br&gt;PORTFOLIOS FOR '
+                    'EVERYONE&lt;br&gt;Whether you plan to buy a house, save up for '
+                    'your children’s education, retire or simply grow your '
+                    'wealth, we have portfolios that caters to your different '
+                    'financial goals:&lt;br&gt;&lt;br&gt;1. Syfe Core: All-in-one '
+                    'portfolios diversified across top global stock, bond and '
+                    'gold ETFs that track popular indexes such as S&amp;amp;P 500, '
+                    'NASDAQ and more&lt;br&gt;&lt;br&gt;- Core Growth: for those seeking '
+                    'higher return potential and long-term growth&lt;br&gt;- Core '
+                    'Balanced: for those seeking income and long-term '
+                    'growth&lt;br&gt;- Core Defensive: for those seeking stable '
+                    'returns and long-term income&lt;br&gt;- Global ARI: for those '
+                    'seeking to diversify with 11 risk level options to choose '
+                    'from&lt;br&gt;&lt;br&gt;2. Syfe REIT+: Passive Income '
+                    'Portfolio&lt;br&gt;&lt;br&gt;- REIT+: For those seeking to invest in '
+                    'Singapore’s largest real estate investment trusts (REITs) '
+                    'such as Ascendas REITs, CapitaLand Integrated Commercial '
+                    'Trust, Mapletree Commercial Trust, and more.&lt;br&gt;&lt;br&gt;3. '
+                    'Syfe Equity100: Pure Equity Portfolio &lt;br&gt;&lt;br&gt;- '
+                    'Equity100: For those seeking 100% exposure to global '
+                    'equities. Gain access to 1,500+ stocks in the world’s '
+                    'best companies from leading sectors such as technology '
+                    'and healthcare&lt;br&gt;&lt;br&gt;4. Syfe Cash+: Cash Management '
+                    'Portfolio&lt;br&gt;&lt;br&gt;- Cash+: for those seeking higher '
+                    'returns on their savings than at banks with a 1.75% p.a. '
+                    'projected return&lt;br&gt;&lt;br&gt;OUR APP FEATURES&lt;br&gt;Investing '
+                    'should be easy and quick. With the Syfe app, you can '
+                    'enjoy seamless investing and the benefits of:&lt;br&gt;&lt;br&gt;- '
+                    'Investing in minutes. Easily add however many portfolios '
+                    'you want and conveniently transfer your funds between '
+                    'portfolios&lt;br&gt;- Monitoring your investments at a glance. '
+                    'See how well your investments are performing, your '
+                    'returns and easily track the dividends you have '
+                    'received&lt;br&gt;- Learning as you go. Explore our collection '
+                    'of research guides, expert advice commentary, webinars '
+                    'and magazines – filled with the latest financial '
+                    'news&lt;br&gt;- Scheduling calls for personalised wealth '
+                    'guidance. Access our team of wealth experts, who are '
+                    'dedicated to ensuring you make smarter decisions about '
+                    'your personal finances&lt;br&gt;&lt;br&gt;WHY INVESTORS CHOOSE '
+                    'SYFE&lt;br&gt;Join an evergrowing number of investors that '
+                    'invest with Syfe and take advantage of our offerings '
+                    'now:&lt;br&gt;&lt;br&gt;- Simple, transparent pricing. Enjoy no '
+                    'brokerage fees, no entry fees, no withdrawal fees and no '
+                    'hidden charges. We charge one simple fee: an '
+                    'all-inclusive annual fee of 0.4% to 0.65% on your '
+                    'invested capital. That’s all.&lt;br&gt;- Access a wide range of '
+                    'asset classes, countries and sectors. Ranging from '
+                    'portfolios that invest in the fastest-growing economies '
+                    'such as China to leading companies such as Google, '
+                    'Microsoft, Tencent and more, we have all your bases '
+                    'covered.&lt;br&gt;- Great for beginners, experts and everyone '
+                    'in between. Even if you’re not sure how to invest, we’ll '
+                    'help you realise your financial goals with our risk '
+                    'questionnaire and recommend the portfolio that is best '
+                    'suited for your goals.&lt;br&gt;&lt;br&gt;AS FEATURED BY&lt;br&gt;Hear from '
+                    'industry leaders:&lt;br&gt;&lt;br&gt;“Better than DIY” - '
+                    'MoneySmart&lt;br&gt;“12 Investment Apps to Multiply Your '
+                    'Savings” - TheSmartLocal&lt;br&gt;“Good for dollar cost '
+                    'averaging and accumulation” - '
+                    'InvestmentMoats&lt;br&gt;&lt;br&gt;REACH OUT TO US&lt;br&gt;Please contact '
+                    'us if you have any queries via:&lt;br&gt;&lt;br&gt;- Our Live Chat '
+                    'service on the Syfe app and web dashboard&lt;br&gt;- Email at '
+                    'support@syfe.com&lt;br&gt;- Call us at +65 3138 1215 between '
+                    '9:00 am and 6:00 pm Monday through Friday&lt;br&gt;&lt;br&gt;&lt;br&gt;MAS '
+                    'Capital Markets Services (CMS) License - CMS100837. '
+                    'Located at 4 Robinson Rd, #11-01 The House Of Eden, '
+                    'Singapore 048543.',
+ 'developer': 'Syfe Pte. Ltd.',
+ 'developerAddress': None,
+ 'developerEmail': 'support@syfe.com',
+ 'developerId': 'Syfe+Pte.+Ltd.',
+ 'developerInternalID': '6414178832405907722',
+ 'developerWebsite': 'https://www.syfe.com',
+ 'editorsChoice': False,
+ 'free': True,
+ 'genre': 'Finance',
+ 'genreId': 'FINANCE',
+ 'headerImage': 'https://play-lh.googleusercontent.com/Yeggbs43FhOOoFdr8FbJs67LjSCQNn45rDg2tNrzexPQIUZqQc7R9rFYrTf5LeWy7A',
+ 'histogram': [18, 9, 15, 56, 217],
+ 'icon': 'https://play-lh.googleusercontent.com/wQ8cTcyXnCDZfpu0Ft8vMlqHN5VPtTt_pgkthOYy2okpR4qvu20fhHmme0ldcqPOrmTu',
+ 'inAppProductPrice': None,
+ 'installs': '50,000+',
+ 'minInstalls': 50000,
+ 'offersIAP': False,
+ 'originalPrice': None,
+ 'price': 0,
+ 'privacyPolicy': 'https://www.syfe.com/privacy-policy',
+ 'ratings': 315,
+ 'recentChanges': '1. See statuses for various transactions - withdrawals, '
+                  'fund transfers and new funds added\r\n'
+                  '2. Download new and past monthly statements from account '
+                  'settings\r\n'
+                  '3. See more detailed information on portfolios when adding '
+                  'new portfolios\r\n'
+                  '4. Minor fixes and performance improvements',
+ 'recentChangesHTML': '1. See statuses for various transactions - withdrawals, '
+                      'fund transfers and new funds added&lt;br&gt;2. Download new '
+                      'and past monthly statements from account settings&lt;br&gt;3. '
+                      'See more detailed information on portfolios when adding '
+                      'new portfolios&lt;br&gt;4. Minor fixes and performance '
+                      'improvements',
+ 'released': 'Feb 13, 2020',
+ 'reviews': 112,
+ 'sale': False,
+ 'saleText': None,
+ 'saleTime': None,
+ 'score': 4.3960395,
+ 'screenshots': ['https://play-lh.googleusercontent.com/H58nNrSz9aQldpSObxkOc775H2aUWS8Rwi6etXLF-lL5lpBOvHM5XyADGuVB_4TPr3_5',
+                 'https://play-lh.googleusercontent.com/EJuqpmk0aAosjTv81L2EceMf-a7VpQmyd4FVS3-h2kMHLJJMjZD9yUtbUwigho4wOcU',
+                 'https://play-lh.googleusercontent.com/2JbHM66KBRzVZr5N8w_i3kn_Eye5Zjps76_BJz2w-0kgr9q2ff6cMxhIv8ICeMy4svg',
+                 'https://play-lh.googleusercontent.com/nLWXA0ub8n6FB5lWN9lukn41AyXUr3wh7DEfNRD73q6jIa8ityevjK3B1iUsBvjLKw',
+                 'https://play-lh.googleusercontent.com/VjEVGMTcsoMuRUQWSAKfIZbkgstuRXkzdnhkfniUHMPh5lUrniIOzQ_93MlrLPmogoDj',
+                 'https://play-lh.googleusercontent.com/p3u0RUMoTqytOqU_XSrWHxnBOkNXuelUXfHogrFZ1yCJ_xbAUOJ3FWwy78uyr0DjacU',
+                 'https://play-lh.googleusercontent.com/AB5Gqg8Um5Uj2A7yyflZhAmBgkCz_8PunAOaLpd5k0_FGmkjt8GzINvYJNYjLbmlLNo',
+                 'https://play-lh.googleusercontent.com/Zz5ECBOSC2b85h3hS0AlRe2cm1i84HBfwn40QMSEo9PNxlw2c4byGqKbNqqTZrNnwA'],
+ 'size': '36M',
+ 'summary': 'Start your investment journey. Invest and grow your wealth with '
+            'any amount.',
+ 'summaryHTML': 'Start your investment journey. Invest and grow your wealth '
+                'with any amount.',
+ 'title': 'Syfe: Invest Better',
+ 'updated': 1630425088,
+ 'url': 'https://play.google.com/store/apps/details?id=com.syfe&amp;hl=en&amp;gl=us',
+ 'version': '4.80',
+ 'video': None,
+ 'videoImage': None}
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>title</th>
+      <th>description</th>
+      <th>descriptionHTML</th>
+      <th>summary</th>
+      <th>summaryHTML</th>
+      <th>installs</th>
+      <th>minInstalls</th>
+      <th>score</th>
+      <th>ratings</th>
+      <th>reviews</th>
+      <th>...</th>
+      <th>adSupported</th>
+      <th>containsAds</th>
+      <th>released</th>
+      <th>updated</th>
+      <th>version</th>
+      <th>recentChanges</th>
+      <th>recentChangesHTML</th>
+      <th>editorsChoice</th>
+      <th>appId</th>
+      <th>url</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Syfe: Invest Better</td>
+      <td>Invest better, faster and smarter with Syfe. S...</td>
+      <td>Invest better, faster and smarter with Syfe. S...</td>
+      <td>Start your investment journey. Invest and grow...</td>
+      <td>Start your investment journey. Invest and grow...</td>
+      <td>50,000+</td>
+      <td>50000</td>
+      <td>4.396039</td>
+      <td>315</td>
+      <td>112</td>
+      <td>...</td>
+      <td>None</td>
+      <td>False</td>
+      <td>Feb 13, 2020</td>
+      <td>1630425088</td>
+      <td>4.80</td>
+      <td>1. See statuses for various transactions - wit...</td>
+      <td>1. See statuses for various transactions - wit...</td>
+      <td>False</td>
+      <td>com.syfe</td>
+      <td>https://play.google.com/store/apps/details?id=...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Endowus: Invest CPF, SRS, Cash</td>
+      <td>Thousands invest and grow their Cash, CPF &amp; SR...</td>
+      <td>Thousands invest and grow their Cash, CPF &amp;amp...</td>
+      <td>Endowus offers access to superior investment p...</td>
+      <td>Endowus offers access to superior investment p...</td>
+      <td>10,000+</td>
+      <td>10000</td>
+      <td>4.900000</td>
+      <td>254</td>
+      <td>143</td>
+      <td>...</td>
+      <td>None</td>
+      <td>False</td>
+      <td>Oct 6, 2020</td>
+      <td>1629383049</td>
+      <td>1.3.1</td>
+      <td>Upgrade to v1.3.1 to find the latest bug fixes...</td>
+      <td>Upgrade to v1.3.1 to find the latest bug fixes...</td>
+      <td>False</td>
+      <td>com.endowus.mobileapp</td>
+      <td>https://play.google.com/store/apps/details?id=...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>StashAway: Invest and save</td>
+      <td>StashAway is where intelligent investing meets...</td>
+      <td>StashAway is where intelligent investing meets...</td>
+      <td>Personal finance and investing</td>
+      <td>Personal finance and investing</td>
+      <td>100,000+</td>
+      <td>100000</td>
+      <td>4.346535</td>
+      <td>3015</td>
+      <td>1464</td>
+      <td>...</td>
+      <td>None</td>
+      <td>False</td>
+      <td>Oct 25, 2017</td>
+      <td>1629966240</td>
+      <td>11.95.2</td>
+      <td>A release with no new features?! Why aren’t we...</td>
+      <td>A release with no new features?! Why aren’t we...</td>
+      <td>False</td>
+      <td>com.awp.stashaway</td>
+      <td>https://play.google.com/store/apps/details?id=...</td>
+    </tr>
+  </tbody>
+</table>
+<p>3 rows × 49 columns</p>
+</div>
+
+<h2 id="scrapping-google-play-store-reviews">Scrapping Google Play Store reviews</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># for scraping app reviews from Google Play Store
+</span><span class="kn">from</span> <span class="nn">google_play_scraper</span> <span class="kn">import</span> <span class="n">app</span><span class="p">,</span> <span class="n">Sort</span><span class="p">,</span> <span class="n">reviews</span>
+
+<span class="c1"># Empty list for storing reviews
+</span><span class="n">google_app_reviews</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1">## Loop through apps to get reviews
+</span><span class="k">for</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">app_id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">google_app_names</span><span class="p">,</span> <span class="n">google_app_ids</span><span class="p">):</span>
+    
+    <span class="c1"># Get start time
+</span>    <span class="n">start</span> <span class="o">=</span> <span class="n">dt</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">get_localzone</span><span class="p">())</span>
+    <span class="n">fmt</span><span class="o">=</span> <span class="s">"%m/%d/%y - %T %p"</span>    
+    
+    <span class="c1"># Print starting output for app
+</span>    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>    
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'***** </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s"> started at </span><span class="si">{</span><span class="n">start</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    
+    <span class="c1"># Number of reviews to scrape per batch
+</span>    <span class="n">count</span> <span class="o">=</span> <span class="mi">200</span>
+    
+    <span class="c1"># To keep track of how many batches have been completed
+</span>    <span class="n">batch_num</span> <span class="o">=</span> <span class="mi">0</span>
+     
+    <span class="c1"># Retrieve reviews (and continuation_token) with reviews function
+</span>    <span class="n">rvws</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">(</span>
+        <span class="n">app_id</span><span class="p">,</span>           <span class="c1"># found in app's url
+</span>        <span class="n">lang</span><span class="o">=</span><span class="s">'en'</span><span class="p">,</span>        <span class="c1"># defaults to 'en'
+</span>        <span class="n">country</span><span class="o">=</span><span class="s">'us'</span><span class="p">,</span>     <span class="c1"># defaults to 'us'
+</span>        <span class="n">sort</span><span class="o">=</span><span class="n">Sort</span><span class="p">.</span><span class="n">NEWEST</span><span class="p">,</span> <span class="c1"># start with most recent
+</span>        <span class="n">count</span><span class="o">=</span><span class="n">count</span>       <span class="c1"># batch size
+</span>    <span class="p">)</span>
+    
+    <span class="c1"># For each review obtained
+</span>    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rvws</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">[</span><span class="s">'app_name'</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_name</span> <span class="c1"># add key for app's name
+</span>        <span class="n">r</span><span class="p">[</span><span class="s">'app_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_id</span>     <span class="c1"># add key for app's id
+</span>     
+    
+    <span class="c1"># Add the list of review dicts to overall list
+</span>    <span class="n">google_app_reviews</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rvws</span><span class="p">)</span>
+    
+    <span class="c1"># Increase batch count by one
+</span>    <span class="n">batch_num</span> <span class="o">+=</span><span class="mi">1</span> 
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s"> completed.'</span><span class="p">)</span>
+    
+    <span class="c1"># Wait 1 to 5 seconds to start next batch
+</span>    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+    
+    <span class="c1"># Append review IDs to list prior to starting next batch
+</span>    <span class="n">pre_review_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rvw</span> <span class="ow">in</span> <span class="n">google_app_reviews</span><span class="p">:</span>
+        <span class="n">pre_review_ids</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">rvw</span><span class="p">[</span><span class="s">'reviewId'</span><span class="p">])</span>
+    
+    <span class="c1"># Loop through at most max number of batches
+</span>    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4999</span><span class="p">):</span>
+        <span class="n">rvws</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">(</span> <span class="c1"># store continuation_token
+</span>            <span class="n">app_id</span><span class="p">,</span>
+            <span class="n">lang</span><span class="o">=</span><span class="s">'en'</span><span class="p">,</span>
+            <span class="n">country</span><span class="o">=</span><span class="s">'us'</span><span class="p">,</span>
+            <span class="n">sort</span><span class="o">=</span><span class="n">Sort</span><span class="p">.</span><span class="n">NEWEST</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+            <span class="c1"># using token obtained from previous batch
+</span>            <span class="n">continuation_token</span><span class="o">=</span><span class="n">token</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Append unique review IDs from current batch to new list
+</span>        <span class="n">new_review_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rvws</span><span class="p">:</span>
+            <span class="n">new_review_ids</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">'reviewId'</span><span class="p">])</span>
+            
+            <span class="c1"># And add keys for name and id to each review dict
+</span>            <span class="n">r</span><span class="p">[</span><span class="s">'app_name'</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_name</span> <span class="c1"># add key for app's name
+</span>            <span class="n">r</span><span class="p">[</span><span class="s">'app_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_id</span>     <span class="c1"># add key for app's id
+</span>     
+        <span class="c1"># Add the list of review dicts to main app_reviews list
+</span>        <span class="n">google_app_reviews</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rvws</span><span class="p">)</span>
+        
+        <span class="c1"># Increase batch count by one
+</span>        <span class="n">batch_num</span> <span class="o">+=</span><span class="mi">1</span>
+        
+        <span class="c1"># Break loop and stop scraping for current app if most recent batch
+</span>          <span class="c1"># did not add any unique reviews
+</span>        <span class="n">all_review_ids</span> <span class="o">=</span> <span class="n">pre_review_ids</span> <span class="o">+</span> <span class="n">new_review_ids</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pre_review_ids</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_review_ids</span><span class="p">)):</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'No reviews left to scrape. Completed </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s"> batches.</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+            <span class="k">break</span>
+        
+        <span class="c1"># all_review_ids becomes pre_review_ids to check against 
+</span>          <span class="c1"># for next batch
+</span>        <span class="n">pre_review_ids</span> <span class="o">=</span> <span class="n">all_review_ids</span>
+        
+        <span class="c1"># Wait 1 to 5 seconds to start next batch
+</span>        <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+      
+    
+    <span class="c1"># Print update when max number of batches has been reached
+</span>      <span class="c1"># OR when last batch didn't add any unique reviews
+</span>    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Done scraping </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s">.'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Scraped a total of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pre_review_ids</span><span class="p">))</span><span class="si">}</span><span class="s"> unique reviews.</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    
+    <span class="c1"># Get end time
+</span>    <span class="n">end</span> <span class="o">=</span> <span class="n">dt</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">get_localzone</span><span class="p">())</span>
+    
+    <span class="c1"># Print ending output for app
+</span>    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"""
+    Successfully inserted all </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s"> reviews into collection
+    at </span><span class="si">{</span><span class="n">end</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span><span class="si">}</span><span class="s">.</span><span class="se">\n</span><span class="s">
+    """</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Time elapsed for </span><span class="si">{</span><span class="n">app_name</span><span class="si">}</span><span class="s">: </span><span class="si">{</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'---'</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    
+    <span class="c1"># Wait 1 to 5 seconds to start scraping next app
+</span>    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>------------------------------------------------------------
+------------------------------------------------------------
+***** Syfe started at 09/04/21 - 23:33:25 PM
+
+Batch 1 completed.
+No reviews left to scrape. Completed 2 batches.
+
+Done scraping Syfe.
+Scraped a total of 110 unique reviews.
+
+
+    Successfully inserted all Syfe reviews into collection
+    at 09/04/21 - 23:33:31 PM.
+
+    
+Time elapsed for Syfe: 0:00:05.276724
+------------------------------------------------------------
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+------------------------------------------------------------
+***** Endowus started at 09/04/21 - 23:33:32 PM
+
+Batch 1 completed.
+No reviews left to scrape. Completed 2 batches.
+
+Done scraping Endowus.
+Scraped a total of 250 unique reviews.
+
+
+    Successfully inserted all Endowus reviews into collection
+    at 09/04/21 - 23:33:34 PM.
+
+    
+Time elapsed for Endowus: 0:00:02.298619
+------------------------------------------------------------
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+------------------------------------------------------------
+***** StashAway started at 09/04/21 - 23:33:38 PM
+
+Batch 1 completed.
+No reviews left to scrape. Completed 8 batches.
+
+Done scraping StashAway.
+Scraped a total of 1515 unique reviews.
+
+
+    Successfully inserted all StashAway reviews into collection
+    at 09/04/21 - 23:34:00 PM.
+
+    
+Time elapsed for StashAway: 0:00:22.199429
+------------------------------------------------------------
+------------------------------------------------------------
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Converting output to dataframe
+</span><span class="n">google_reviews</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">google_app_reviews</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="part-3-combining-both-apple-and-google-store-reviews">Part 3: Combining both Apple and Google Store reviews</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Apple Store: </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">apple_reviews</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> rows and </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">apple_reviews</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s"> columns.'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Google Play Store: </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">google_reviews</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> rows and </span><span class="si">{</span><span class="n">np</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">google_reviews</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s"> columns.'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Apple Store: 524 rows and 9 columns.
+Google Play Store: 1515 rows and 12 columns.
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">new_apple</span> <span class="o">=</span> <span class="n">apple_reviews</span><span class="p">[[</span><span class="s">'app_name'</span><span class="p">,</span><span class="s">'review'</span><span class="p">]]</span> <span class="c1"># Selecting app_name and review from apple reviews into new df
+</span><span class="n">new_apple</span><span class="p">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">'review'</span><span class="p">:</span><span class="s">'content'</span><span class="p">},</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="c1"># rename review content column
+</span><span class="n">new_google</span> <span class="o">=</span> <span class="n">google_reviews</span><span class="p">[[</span><span class="s">'app_name'</span><span class="p">,</span><span class="s">'content'</span><span class="p">]]</span> <span class="c1"># subset app_name and content from google reviews into new df
+</span><span class="n">total_reviews</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">new_apple</span><span class="p">,</span><span class="n">new_google</span><span class="p">])</span> <span class="c1"># Concat both dfs into one
+</span>
+<span class="c1"># saving reviews into csv file
+</span><span class="n">total_reviews</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">'app_reviews.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/Users/a844133yara.com/.pyenv/versions/3.9.5/envs/python_playground/lib/python3.9/site-packages/pandas/core/frame.py:5034: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  return super().rename(
+</code></pre></div></div>
+
+:ET

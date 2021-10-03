@@ -1,13 +1,13 @@
 ---
 layout: post
-title: Predicting Melbourne Housing Prices
+title: Predicting Melbourne Housing Prices Part 1
 description: Using linear regression to predict housing prices in Melbourne. # Add post description (optional)
 img: '/01_LE_MelbourneHousing_files/predicthousingprices.jpeg' # Add image post (optional)
 fig-caption: # Add figcaption (optional)
 tags: [Data Analytics, Linear Regression]
 ---
 
-Using linear regression models to predict housing prices changes in Melbourne.
+Using multiple regression models to predict housing prices changes in Melbourne.
 
 The main components of this notebook can be split into:
 1. Data Cleaning
