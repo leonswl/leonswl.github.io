@@ -4,7 +4,7 @@ title: Rule-based Sentiment Analysis on Syfe, Stashaway and Endowus
 description: Using Rule-based approach to conduct Sentiment Analysis on popular roboadvisors in Singapore - Syfe, Stashaway and Endowus. # Add post description (optional)
 img: '/multiple-rule-based-sentiment-analysis_files/rule-based-sentiment-analysis.jpeg' # Add image post (optional)
 fig-caption: # Add figcaption (optional)
-tags: [Data Analytics, Linear Regression]
+tags: [Data Analytics, Sentiment Analysis, Roboadvisors]
 ---
 Using 3 types of  lexicon based approach to conduct Sentiment Analysis on Syfe, StashAway and Endowus app reviews.
 

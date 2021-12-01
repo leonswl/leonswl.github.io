@@ -1,4 +1,4 @@
-# Personal Github Page Portfolio
+# Leon's Github Page Portfolio
 
 Hello, if you are here that means you have chanced upon my own personal portfolio! A little bit about myself - I'm Leon, an aspiring data analyst proficient in python, SQL and R :) Drop me a message anytime for engaging conversations!
 

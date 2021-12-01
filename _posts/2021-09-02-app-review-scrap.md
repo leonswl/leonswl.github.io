@@ -4,7 +4,7 @@ title: Scrapping App Reviews for popular roboadvisors in Singapore using Python
 description: Using linear regression to predict housing prices in Melbourne. # Add post description (optional)
 img: '/app-review-scrap/scrapappreviews.jpg' # Add image post (optional)
 fig-caption: # Add figcaption (optional)
-tags: [Data Analytics, Linear Regression]
+tags: [Data Analytics, App Reviews, Web Scrapping]
 ---
 
 Using python to scrapping app reviews for Syfe, Endowus and Stashaway from Google Play and Apple Store.
