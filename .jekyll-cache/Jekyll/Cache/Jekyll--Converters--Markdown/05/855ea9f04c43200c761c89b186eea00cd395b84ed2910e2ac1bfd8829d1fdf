@@ -1,4 +1,7 @@
-I"uä<p>Using networkx and plotly to visualise my LinkedIn network.</p>
+I"‹ä<p>Using networkx and plotly to visualise my LinkedIn network.
+<br />
+<br />
+<br /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Installing Libraries
 </span>
@@ -258,7 +261,7 @@ memory usage: 18.9+ KB
         #mynetwork1 {
             width: 700px;
             height: 700px;
-            background-color: grey;
+            background-color: black;
             border: 1px solid lightgray;
             position: relative;
             float: left;

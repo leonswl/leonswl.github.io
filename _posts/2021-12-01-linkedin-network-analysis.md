@@ -7,7 +7,8 @@ fig-caption: # Add figcaption (optional)
 tags: [Data Analytics, Networkx, LinkedIn]
 ---
 
-Using networkx and plotly to visualise my LinkedIn network.
+Visualise my LinkedIn Social network using networkx and plotly to improve my understanding on network and graphy theories.
+
 
 
 ```python

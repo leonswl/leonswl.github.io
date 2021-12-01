@@ -10,3 +10,4 @@ GNU General Public License v3.0
 ## Personal Notes
 Disqus feature was removed. To include it back, insert '{% include disqus.html %}'back to post.html at the end of '<div class="page-footer" >'
 
+[Testing site locally](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)

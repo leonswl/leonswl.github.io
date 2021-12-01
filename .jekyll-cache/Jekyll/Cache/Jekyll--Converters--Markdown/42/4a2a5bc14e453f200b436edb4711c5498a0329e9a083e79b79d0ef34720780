@@ -1,4 +1,4 @@
-I"nä<p>Using networkx and plotly to visualise my LinkedIn network.</p>
+I"6å<h2 id="visualise-my-linkedin-social-network-using-networkx-and-plotly-to-improve-my-understanding-on-network-and-graphy-theories">Visualise my LinkedIn Social network using networkx and plotly to improve my understanding on network and graphy theories.</h2>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Installing Libraries
 </span>
@@ -125,7 +125,7 @@ memory usage: 18.9+ KB
 
 <span class="n">px</span><span class="p">.</span><span class="n">treemap</span><span class="p">(</span><span class="n">new_df1</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="p">[</span><span class="s">'My Network'</span><span class="p">,</span> <span class="s">'company'</span><span class="p">,</span> <span class="s">'position'</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1200</span><span class="p">)</span>
 </code></pre></div></div>
-<p><img src="assets/img/linkedin-network-analysis_files/plotly-treemap.png" alt="plotly treemap" /></p>
+<p><img src="/assets/img/linkedin-network-analysis_files/plotly-treemap.png" alt="plotly treemap" /></p>
 
 <h3 id="new-connections-over-time">New Connections over time</h3>
 
@@ -136,7 +136,7 @@ memory usage: 18.9+ KB
 </span><span class="p">)</span>
 </code></pre></div></div>
 
-<p><img src="assets/img/linkedin-network-analysis_files/linkedin-network-analysis_10_0.png" alt="connections line graph" /></p>
+<p><img src="/assets/img/linkedin-network-analysis_files/linkedin-network-analysis_10_0.png" alt="connections line graph" /></p>
 
 <p>Looking at the number of new connections over time since i joined LinkedIn, bulk of my connections were created during the start - period between end 2019 and start of 2020).</p>
 
@@ -152,7 +152,7 @@ memory usage: 18.9+ KB
 <span class="n">companies_count</span><span class="p">.</span><span class="n">head</span><span class="p">(</span><span class="mi">15</span><span class="p">).</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s">'barh'</span><span class="p">).</span><span class="n">invert_yaxis</span><span class="p">()</span> <span class="c1"># convert to horizontal plot
 </span></code></pre></div></div>
 
-<p><img src="assets/img/linkedin-network-analysis_files/linkedin-network-analysis_13_0.png" alt="companies bar chart" /></p>
+<p><img src="/assets/img/linkedin-network-analysis_files/linkedin-network-analysis_13_0.png" alt="companies bar chart" /></p>
 
 <h3 id="top-15-roles-my-connections-are-working-in">Top 15 roles my connections are working in</h3>
 
@@ -165,7 +165,7 @@ memory usage: 18.9+ KB
 <span class="n">position_count</span><span class="p">.</span><span class="n">head</span><span class="p">(</span><span class="mi">15</span><span class="p">).</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s">'barh'</span><span class="p">).</span><span class="n">invert_yaxis</span><span class="p">()</span> <span class="c1"># convert to horizontal plot
 </span></code></pre></div></div>
 
-<p><img src="assets/img/linkedin-network-analysis_files/linkedin-network-analysis_15_0.png" alt="positions bar chart" /></p>
+<p><img src="/assets/img/linkedin-network-analysis_files/linkedin-network-analysis_15_0.png" alt="positions bar chart" /></p>
 
 <p>The top 3 companies my connections are working in are from Yara, Archisen and NTU, which is expected given that I did my undergraduate degree in NTU, worked at Archisen after graduation before joining Yara International.</p>
 
@@ -220,6 +220,28 @@ memory usage: 18.9+ KB
 <span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="s">'company_graph.html'</span><span class="p">))</span>
 </code></pre></div></div>
 
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># initialize graph
+</span><span class="n">g2</span> <span class="o">=</span> <span class="n">nx</span><span class="p">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="n">g2</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="s">'root'</span><span class="p">)</span> <span class="c1"># intialize yourself as central
+</span>
+<span class="c1"># use iterrows tp iterate through the data frame
+</span><span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">position_count_reduced</span><span class="p">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+  <span class="n">count</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s">'size'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span>
+  <span class="n">position</span><span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s">'position'</span><span class="p">]</span>
+  
+  <span class="n">g2</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'#3449eb'</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">count</span><span class="p">)</span>
+  <span class="n">g2</span><span class="p">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s">'root'</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'grey'</span><span class="p">)</span>
+
+<span class="c1"># generate the graph
+</span><span class="n">position_nt</span> <span class="o">=</span> <span class="n">net</span><span class="p">.</span><span class="n">Network</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="s">'700px'</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s">'700px'</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="s">'white'</span><span class="p">,</span> <span class="n">notebook</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">position_nt</span><span class="p">.</span><span class="n">from_nx</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span>
+<span class="n">position_nt</span><span class="p">.</span><span class="n">hrepulsion</span><span class="p">()</span>
+
+<span class="n">position_nt</span><span class="p">.</span><span class="n">show</span><span class="p">(</span><span class="s">'position_graph.html'</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="s">'position_graph.html'</span><span class="p">))</span>
+</code></pre></div></div>
+
 <html>
 <head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
@@ -233,10 +255,10 @@ memory usage: 18.9+ KB
 
 <style type="text/css">
 
-        #mynetwork {
+        #mynetwork1 {
             width: 700px;
             height: 700px;
-            background-color: grey;
+            background-color: black;
             border: 1px solid lightgray;
             position: relative;
             float: left;
@@ -252,7 +274,7 @@ memory usage: 18.9+ KB
 </head>
 
 <body>
-<div id="mynetwork"></div>
+<div id="mynetwork1"></div>
 
 
 <script type="text/javascript">
@@ -267,7 +289,7 @@ memory usage: 18.9+ KB
 
     // This method is responsible for drawing the graph, returns the drawn network
     function drawGraph() {
-        var container = document.getElementById('mynetwork');
+        var container = document.getElementById('mynetwork1');
 
 
 
@@ -336,28 +358,6 @@ memory usage: 18.9+ KB
 </script>
 </body>
 </html>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># initialize graph
-</span><span class="n">g2</span> <span class="o">=</span> <span class="n">nx</span><span class="p">.</span><span class="n">Graph</span><span class="p">()</span>
-<span class="n">g2</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="s">'root'</span><span class="p">)</span> <span class="c1"># intialize yourself as central
-</span>
-<span class="c1"># use iterrows tp iterate through the data frame
-</span><span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">position_count_reduced</span><span class="p">.</span><span class="n">iterrows</span><span class="p">():</span>
-
-  <span class="n">count</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s">'size'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span>
-  <span class="n">position</span><span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s">'position'</span><span class="p">]</span>
-  
-  <span class="n">g2</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'#3449eb'</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">count</span><span class="p">)</span>
-  <span class="n">g2</span><span class="p">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s">'root'</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'grey'</span><span class="p">)</span>
-
-<span class="c1"># generate the graph
-</span><span class="n">position_nt</span> <span class="o">=</span> <span class="n">net</span><span class="p">.</span><span class="n">Network</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="s">'700px'</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s">'700px'</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s">"black"</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="s">'white'</span><span class="p">,</span> <span class="n">notebook</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
-<span class="n">position_nt</span><span class="p">.</span><span class="n">from_nx</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span>
-<span class="n">position_nt</span><span class="p">.</span><span class="n">hrepulsion</span><span class="p">()</span>
-
-<span class="n">position_nt</span><span class="p">.</span><span class="n">show</span><span class="p">(</span><span class="s">'position_graph.html'</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="s">'position_graph.html'</span><span class="p">))</span>
-</code></pre></div></div>
 
 <html>
 <head>
