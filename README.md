@@ -8,6 +8,14 @@ I created this portfolio while forking a template from [artemsheludko](https://g
 GNU General Public License v3.0
 
 ## Personal Notes
-Disqus feature was removed. To include it back, insert '{% include disqus.html %}'back to post.html at the end of '<div class="page-footer" >'
+- Disqus feature was removed. To include it back, insert '{% include disqus.html %}'back to post.html at the end of '<div class="page-footer" >'
+- [Testing site locally](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
+```
+bundle install
 
-[Testing site locally](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
+bundle exec jekyll serve
+
+```
+## Bugs
+
+1. [Jekyll serve fails on Ruby3.0](https://github.com/jekyll/jekyll/issues/8523)

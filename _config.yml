@@ -9,12 +9,12 @@ site-twitter: #if your site has a twitter account, enter it here
 # Author Settings
 author: Leon Sun # add your name
 author-img: '/leon-small.jpg' # add your photo
-about-author: I am a data analyst who enjoys spending my free time finding interesting projects to work on. I'm currently a product analyst at Yara, focusing on building data insights to empower app development. Proficient in python, SQL and R! # add description
+about-author: I work with data and enjoys spending my free time finding interesting projects to work on. I'm currently a data analyst at BetterTradeOff, focusing on building our data platform and generating insights to empower app development. Proficient in python, SQL and R! # add description
 # social-twitter: # add your Twitter handle
 # social-facebook: # add your Facebook handle
 social-github: leonswl # add your Github handle
 social-linkedin: leonsunwailoong # add your Linkedin handle
-social-email: leonsunwailoong@gmail.com # add your Email address
+social-email: leonsunwl@gmail.com # add your Email address
 
 # Disqus
 # discus-identifier: mr-brown # add your discus identifier
