@@ -14,7 +14,11 @@ GNU General Public License v3.0
 ```shell
 bundle install
 
+# spin up local server for building
 bundle exec jekyll serve
+
+# if auto regeneration have issues, run:
+bundle exec jekyll serve --force_polling
 
 # clean
 jekyll clean
