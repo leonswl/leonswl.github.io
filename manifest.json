@@ -1,6 +1,6 @@
 {
-  "name": "My Web App",
-  "short_name": "MyApp",
+  "name": "layonsan",
+  "short_name": "layonsan",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
