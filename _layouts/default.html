@@ -6,6 +6,18 @@
   <div class="wrapper">
     {{ content }}
   </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{{ "/sw.js" | relative_url }}')
+        .then(function(reg) {
+          console.log("Service Worker registered:", reg);
+        })
+        .catch(function(error) {
+          console.log("Service Worker registration failed:", error);
+        });
+    }
+  </script>
   
   {% include analytics.html %}
 </body>

@@ -2,8 +2,13 @@
 	<meta charset="utf-8">
 	<title>{% if page.title %}{{page.title}} - {{site.title}}{% else %}{{site.title}}{% endif %}</title>
 
-  <!-- Edit site and author settings in `_config.yml` to make the social details your own -->
+  <!-- PWA Support -->
+<link rel="manifest" href="{{ '/manifest.json' | relative_url }}">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ '/assets/img/favicon/web-app-manifest-192x192.png' | relative_url }}">
+<link rel="apple-touch-icon" href="{{ 'assets/img/favicon/favicon.ico' | relative_url }}">
 
+  <!-- Edit site and author settings in `_config.yml` to make the social details your own -->
     <meta content="{{ site.title }}" property="og:site_name">
   {% if page.title %}
     <meta content="{{ page.title }}" property="og:title">
