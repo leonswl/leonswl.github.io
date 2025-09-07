@@ -1,11 +1,8 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-gem 'jekyll'
+gem "jekyll", "~> 4.4.1"
+gem "webrick", "~> 1.9.1"
 
 group :jekyll_plugins do
-  gem "jekyll-sitemap"
-  gem "jekyll-paginate"
-  gem "jemoji"
+  gem "jekyll-feed", "~> 0.17"
 end
-
-gem "webrick", "~> 1.7"

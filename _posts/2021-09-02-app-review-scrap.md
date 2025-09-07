@@ -2,20 +2,11 @@
 layout: post
 title: Scrapping App Reviews for popular roboadvisors in Singapore using Python
 description: Using linear regression to predict housing prices in Melbourne. # Add post description (optional)
-img: '/app-review-scrap/scrapappreviews.jpg' # Add image post (optional)
-fig-caption: # Add figcaption (optional)
-tags: [Data Analytics, App Reviews, Web Scrapping]
+categories: [Data Analytics, App Reviews, Web Scrapping]
 ---
 
-Using python to scrapping app reviews for Syfe, Endowus and Stashaway from Google Play and Apple Store.
+Behind every app lies thousands of user voices. I used Python to scrape reviews for Syfe, Endowus, and StashAway from both the Apple App Store and Google Play. In this three-part series, I walk through collecting reviews from each platform and then bringing them together into one dataset ready for analysis. This work draws reference from [Apple Store Scraper](https://python.plainenglish.io/scraping-app-store-reviews-with-python-90e4117ccdfb) and [Google Play Store Scraper](https://python.plainenglish.io/scraping-storing-google-play-app-reviews-with-python-5640c933c476).
 
-Part 1: Scrap reviews from Apple Store  
-Part 2: Scrap reviews from Google Play Store  
-Part 3: Combining both reviews
-
-Reference: 
-- Apple Store Scrapper: https://python.plainenglish.io/scraping-app-store-reviews-with-python-90e4117ccdfb
-- Google Play Store Scraper: https://python.plainenglish.io/scraping-storing-google-play-app-reviews-with-python-5640c933c476
 
 
 ```python

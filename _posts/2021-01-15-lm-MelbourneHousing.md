@@ -1,25 +1,16 @@
 ---
 layout: post
-title: Predicting Melbourne Housing Prices Part 1
+title: Predicting Housing Prices in Melbourne
 description: Using linear regression to predict housing prices in Melbourne. # Add post description (optional)
-img: '/01_LE_MelbourneHousing_files/predicthousingprices.jpeg' # Add image post (optional)
-fig-caption: # Add figcaption (optional)
-tags: [Data Analytics, Linear Regression]
+categories: [Data Analytics, Linear Regression]
 ---
 
-Using multiple regression models to predict housing prices changes in Melbourne.
+Predicting housing prices in Melbourne through regression analysis. This notebook walks through the full workflow—data cleaning, exploration, and modelling with linear and multiple regression. I also apply feature selection techniques (correlation and mutual information) and evaluate model performance using MAE, MSE, RMSE, and R². This notebook is adapted from [Price Analysis and Linear Regression](https://www.kaggle.com/anthonypino/price-analysis-and-linear-regression) on Kaggle
 
-The main components of this notebook can be split into:
-1. Data Cleaning
-2. Data Exploration
-3. Data Modelling using Linear Regression with all the variables
-
-This notebook is copied and adapted from https://www.kaggle.com/anthonypino/price-analysis-and-linear-regression. 
 
 
 # Melbourne Housing Market
-Housing clearance data from Jan 2016
-Link: https://www.kaggle.com/anthonypino/melbourne-housing-market?select=Melbourne_housing_FULL.csv
+[Housing clearance data](https://www.kaggle.com/anthonypino/melbourne-housing-market?select=Melbourne_housing_FULL.csv) from Jan 2016
 
 1. When did the Melbourne housing cooled off?
 2. Could you see it slowing down? What were the variables that showed the slowing down (was it overall price, amount sold vs unsold, change in more rentals sold and less housing, changes in which CouncilArea or Region, more houses sold in distances further away from Melbourne CBD and less closer)? 
@@ -83,6 +74,8 @@ Lattitude: Self explanitory
 Longtitude: Self explanitory
 
 
+
+
 ```python
 ## Import libraries
 
@@ -112,7 +105,9 @@ from sklearn import metrics
 df_housingfull= pd.read_csv("data/Melbourne_housing_FULL.csv")
 ```
 
-## Part 1 - Data Cleaning
+## Linear Regression
+
+### Data Cleaning
 
 1. Convert arguments in Date column to datetime
 2. Filter out data that are not housing types
@@ -140,12 +135,11 @@ print("After filtering data that are not housing types, there are {} rows and {}
     After filtering data that are not housing types, there are 23980 rows and 16 columns in this new dataframe
 
 
-## Part 2 - Data Exploration using Visualisations
+### Data Exploration using Visualisations
 
 1. Histogram plot for each variable
 2. Pair plots 
 3. Observe average price change per quarter over the years
-
 
 
 ```python
@@ -199,17 +193,9 @@ axes[2,1].set_ylabel('Price')
 axes[2,1].set_title('Price vs Distance')
 
 ```
-
-
-
-
     Text(0.5, 1.0, 'Price vs Distance')
-
-
-
-
     
-![eda plot](/assets/img/01_LE_MelbourneHousing_files/01_LE_MelbourneHousing_9_1.png)
+![eda plot](/assets/images/regression_housing_prices/01_LE_MelbourneHousing_9_1.png)
     
 
 
@@ -218,11 +204,9 @@ These visualisations can help to answer the first 2 questions:
 1. The housing prices in Melbourne appears to begin cooling off sometime between April and July in 2017. 
 2. Based on the correlation matrix, the top 2 features that affects pricing is the number of Bathrooms, nunber of Bedrooms and distance (kilometres) from CBD. I plotted boxplots to visualise how price varies the number of bedrooms and bathrooms. The boxplot for the number of bedrooms indicate that there's quite alot of variability. For distance, I used a regression plot to see how price varies. The plot shows a negative relationship between the two, which is logical since housing near CBD are usually priced higher than those in the outer regions.
 
-## Part 3 - Linear Regression Model with all Features
+### Linear Regression Model with all Features
 
 In this part, I will evaluate the linear regression model using all the available features. The data is split into training and test data with a 2:1 ratio. The coefficient for each predictor variable is subsequently ranked after, showing that longitude, number of bathrooms and the vendor bid method as the top 3 most significant feature in the model. 
-
-
 
 
 ```python
@@ -281,9 +265,7 @@ print(ranked_coeff)
     Latitude      -1.537221e+06
 
 
-### Scatter Plot of Actual vs Predicted
-
-
+#### Scatter Plot of Actual vs Predicted
 
 
 ```python
@@ -295,22 +277,22 @@ axes_lm.set_xlabel("Predicted") # Add x label
 axes_lm.set_ylabel("Observed") # Add y label
 axes_lm.set_title("Observed vs Predicted")
 ```   
-![observed vs predicted](/assets/img/01_LE_MelbourneHousing_files/01_LE_MelbourneHousing_14_1.png)
+![observed vs predicted](/assets/images/regression_housing_prices/01_LE_MelbourneHousing_14_1.png)
     
 
 
-### Distribution plot: difference in actual price and predicted price
+#### Distribution plot: difference in actual price and predicted price
 
 
 ```python
 sns.displot(data=(y_test-ypredictions),bins=50)
 
 ```    
-![distribution plot](/assets/img/01_LE_MelbourneHousing_files/01_LE_MelbourneHousing_16_1.png)
+![distribution plot](/assets/images/regression_housing_prices/01_LE_MelbourneHousing_16_1.png)
     
 
 
-### Evaluating the Raw Linear Regression model
+#### Evaluating the Raw Linear Regression model
 
 
 ```python
@@ -327,3 +309,197 @@ print("R^2 ", metrics.r2_score(y_test,ypredictions))
     RMSE:  460037.6587907654
     R^2  0.5857898755940139
 
+## Multiple Regression
+
+### Feature Selection 
+
+
+```python
+from sklearn.model_selection import RepeatedKFold
+from sklearn.model_selection import cross_val_score
+from sklearn.feature_selection import f_regression
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import mutual_info_regression
+from sklearn.pipeline import Pipeline
+from numpy import mean
+from numpy import std
+from matplotlib import pyplot
+from sklearn.model_selection import GridSearchCV
+```
+
+#### Mutual Information Statistics
+
+This model leverages on the correlation (most common correlation measure being pearsons correlation) to determine which variable is the most relevant.
+
+
+```python
+# Create a function that can implement feature selection for the input training and test data
+def select_features_mis(X_train,Y_train, X_test):
+    # Configure to select all features
+    features = SelectKBest(score_func=mutual_info_regression, k = 16)
+    # Learn relationship from training data
+    features.fit(X_train,Y_train)
+    # Transform training data
+    X_train_feats = features.transform(X_train)
+    # Transorm test data
+    X_test_feats = features.transform(X_test)
+    return X_train_feats,X_test_feats,features
+
+# Running the regression model that applies feature selection (mutual information statistics)
+# Feature selection
+x_train_feats_mis, x_test_feats_mis, features_mis = select_features_mis(x_train,y_train,x_test)
+
+# Scores for the features
+for feature in range(len(features_mis.scores_)):
+    print('Feature %d: %f' % (feature, features_mis.scores_[feature]))
+
+# Fit the model
+model_feats_mis = LinearRegression()
+model_feats_mis.fit(x_train_feats_mis,y_train)
+
+# Evaluate the model
+ypredictions_feats_mis = model_feats_mis.predict(x_test_feats_mis)
+```
+
+    Feature 0: 0.085276
+    Feature 1: 0.379063
+    Feature 2: 0.535257
+    Feature 3: 0.083888
+    Feature 4: 0.111936
+    Feature 5: 0.028387
+    Feature 6: 0.061553
+    Feature 7: 0.143656
+    Feature 8: 0.147641
+    Feature 9: 0.300453
+    Feature 10: 0.259006
+    Feature 11: 0.328668
+    Feature 12: 0.039872
+    Feature 13: 0.011723
+    Feature 14: 0.014065
+    Feature 15: 0.040096
+    Feature 16: 0.000000
+    Feature 17: 0.005040
+    Feature 18: 0.056839
+
+
+#### Correlation Statistics
+
+This model leverages on the correlation (most common correlation measure being pearsons correlation) to determine which variable is the most relevant.
+
+
+```python
+# Create a function that can implement feature selection for the input training and test data
+def select_features_cs(X_train,Y_train, X_test):
+    # Configure to select all features
+    features = SelectKBest(score_func=f_regression, k = 16)
+    # Learn relationship from training data
+    features.fit(X_train,Y_train)
+    # Transform training data
+    X_train_feats = features.transform(X_train)
+    # Transorm test data
+    X_test_feats = features.transform(X_test)
+    return X_train_feats,X_test_feats,features
+
+# Running the regression model that applies feature selection (correlation statistics)
+# Feature selection
+x_train_feats_cs, x_test_feats_cs, features_cs = select_features_cs(x_train,y_train,x_test)
+
+# Scores for the features
+for feature in range(len(features_cs.scores_)):
+    print('Feature %d: %f' % (feature, features_cs.scores_[feature]))
+
+# Create model
+model_feats_cs = LinearRegression()
+# Fit the model
+model_feats_cs.fit(x_train_feats_cs,y_train)
+# Evaluate the model
+ypredictions_feats_cs = model_feats_cs.predict(x_test_feats_cs)
+```
+
+    Feature 0: 624.218533
+    Feature 1: 831.558520
+    Feature 2: 1.104028
+    Feature 3: 559.223771
+    Feature 4: 1039.871719
+    Feature 5: 52.724016
+    Feature 6: 6.962535
+    Feature 7: 918.872851
+    Feature 8: 354.376184
+    Feature 9: 356.552179
+    Feature 10: 228.442479
+    Feature 11: 11.192402
+    Feature 12: 75.345978
+    Feature 13: nan
+    Feature 14: 18.467231
+    Feature 15: 15.835652
+    Feature 16: 0.421705
+    Feature 17: 54.838265
+    Feature 18: 118.419765
+
+
+#### Visualising Regression Models
+
+
+```python
+fig_lm,(axes_lm_mis,axes_lm_cs) = plt.subplots(1,2,figsize=[15,10]) # Create a custom size figure
+
+# Creating plot for Mutual Information Statistics
+sns.regplot(x=ypredictions_feats_mis,y=y_test,line_kws={"color":"red"},ax=axes_lm_mis)
+axes_lm_mis.set_xlabel("Predicted") # Add x label
+axes_lm_mis.set_ylabel("Observed") # Add y label
+axes_lm_mis.set_title("Linear Regression: Mutual Information Statistics for Observed vs Predicted")
+
+# Creating plot for Correlation Statistics
+sns.regplot(x=ypredictions_feats_cs,y=y_test,line_kws={"color":"red"},ax=axes_lm_cs)
+axes_lm_cs.set_xlabel("Predicted") # Add x label
+axes_lm_cs.set_ylabel("Observed") # Add y label
+axes_lm_cs.set_title("Linear Regression: Correlation Statistics for Observed vs Predicted")
+```
+
+    
+![Comparing Observed vs Predicted](/assets/images/regression_housing_prices/01_LE_MelbourneHousing_2_23_1.png)
+    
+
+
+#### Model Evaluation
+
+
+```python
+print("------Evaluated predictions for a raw Linear Regression Model------")
+print("MAE: ", metrics.mean_absolute_error(y_test,ypredictions))
+print("MSE: ", metrics.mean_squared_error(y_test,ypredictions))
+print("RMSE: ", np.sqrt(metrics.mean_squared_error(y_test,ypredictions)))
+print("R^2: ", metrics.r2_score(y_test,ypredictions))
+
+print("------Evaluated predictions for a Linear Regression Model with Correlation Statistics Feature Selection------")
+print("MAE: ", metrics.mean_absolute_error(y_test,ypredictions_feats_cs))
+print("MSE: ", metrics.mean_squared_error(y_test,ypredictions_feats_cs))
+print("RMSE: ", np.sqrt(metrics.mean_squared_error(y_test,ypredictions_feats_cs)))
+print("R^2: ", metrics.r2_score(y_test,ypredictions_feats_cs))
+
+print("------Evaluated predictions for a Linear Regression Model with Mutual Information Statistics Feature Selection------")
+print("MAE: ", metrics.mean_absolute_error(y_test,ypredictions_feats_mis))
+print("MSE: ", metrics.mean_squared_error(y_test,ypredictions_feats_mis))
+print("RMSE: ", np.sqrt(metrics.mean_squared_error(y_test,ypredictions_feats_mis)))
+print("R^2: ", metrics.r2_score(y_test,ypredictions_feats_mis))
+
+```
+
+    ------Evaluated predictions for a raw Linear Regression Model------
+    MAE:  301077.07816341706
+    MSE:  235171170575.45062
+    RMSE:  484944.50257266616
+    R^2:  0.5415862801118618
+    ------Evaluated predictions for a Linear Regression Model with Correlation Statistics Feature Selection------
+    MAE:  309316.00912912446
+    MSE:  246586130384.74255
+    RMSE:  496574.39561937
+    R^2:  0.5193353631489246
+    ------Evaluated predictions for a Linear Regression Model with Mutual Information Statistics Feature Selection------
+    MAE:  301072.41752915125
+    MSE:  235167756102.42468
+    RMSE:  484940.9820817629
+    R^2:  0.541592935865105
+
+
+By applying two types of feature selection techniques and comparing the models, the metrics indicate that mutual information statistics allow us to to achieve a more accurate model - higher R^2 and lower error metrics (MAE, MSE and RMSE).
