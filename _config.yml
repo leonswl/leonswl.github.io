@@ -1,35 +1,35 @@
-title: Leon Sun - Data Portfolio
-description: > # this means to ignore newlines until "baseurl:"
-  Hello! My name is Leon Sun. Welcome to my personal data analytics portfolio! 
-permalink: ':title/'
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://leonswl.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-site-twitter: #if your site has a twitter account, enter it here
+title: "layonsan"
+author: "Blog Author"
+description: "My blog"
+permalink: /:title/
+lang: "en"
+excerpt_separator: "\n\n\n"
+date_format: "%B %d, %Y"
 
-# Author Settings
-author: Leon Sun # add your name
-author-img: '/leon-small.jpg' # add your photo
-about-author: Hello! I'm a data scientist who enjoys spending my free time venturing into the exciting world of data science, engineering and AI/ML. Am also a bookworm so feel free to drop me book suggestions :) # add description
-# social-twitter: # add your Twitter handle
-# social-facebook: # add your Facebook handle
-social-github: leonswl # add your Github handle
-social-linkedin: leonsunwailoong # add your Linkedin handle
-social-email: leonsunwl@gmail.com # add your Email address
+# Layout
 
-# Disqus
-# discus-identifier: mr-brown # add your discus identifier
+show_excerpts: true             # show article excerpts instead of archive list on the home page
+show_frame: true                # display a grey frame on large screens
+show_sidebar: false             # show a sidebar instead of the usual header
+show_minimal: false             # remove all clutter
 
-# Tracker
-analytics: # Google Analytics
+#show_frame: "/assets/images/background.svg"
 
-# Build Settings
-markdown: kramdown
+# Menu                          # for available icons see https://fontawesome.com/v5/icons/
+
+navigation:                     # accepts {file, title, url, icon, sidebaricon}
+  - {file: "archive.html", sidebaricon: home}
+  - {file: "README.md", sidebaricon: address-card}
+
+external:                       # accepts {file, title, url, icon, sidebaricon}
+  - {title: Mail, icon: envelope, url: "mailto:leonsunwl@gmail.com.com"}
+  - {title: Github, icon: github, url: "https://github.com/leonswl"}
+  - {title: LinkedIn, icon: linkedin, url: "https://in.linkedin.com/in/leonsunwailoong"}
+  - {title: Medium, icon: medium, url: "https://medium.com/@layonsan"}
+
+comments:
+#  disqus_shortname: ""         # see https://disqus.com
+#  isso_domain: ""              # see https://isso-comments.de
+
 plugins:
-  - jekyll-sitemap
-  - jekyll-paginate
-  - jemoji
-
-paginate: 8
-paginate_path: "/page/:num"
-
-exclude: ["node_modules", "gulpfile.js", "package.json", "yarn.lock"]
+ - jekyll-feed

@@ -2,12 +2,10 @@
 layout: post
 title: LinkedIn Network Analysis
 description: Using networkx and plotly to visualise my LinkedIn network. # Add post description (optional)
-img: '/linkedin-network-analysis_files/network_pic.jpeg' # Add image post (optional)
-fig-caption: # Add figcaption (optional)
-tags: [Data Analytics, Networkx, LinkedIn]
+categories: [Data Analytics, Networkx, LinkedIn]
 ---
 
-Visualise my LinkedIn Social network using networkx and plotly to improve my understanding on network and graphy theories.
+What does your LinkedIn network really look like? I visualized my own connections using NetworkX and Plotly, turning a list of names into a living, breathing graph. Along the way, I explored concepts from network and graph theory—like centrality, clusters, and bridges—that reveal hidden patterns in how people are connected. Dive in to see how data visualization can turn something familiar into something surprisingly insightful.
 
 
 
@@ -146,7 +144,7 @@ new_df1['My Network'] = 'My Network'
 
 px.treemap(new_df1, path=['My Network', 'company', 'position'], width=1200, height=1200)
 ```
-![plotly treemap](/assets/img/linkedin-network-analysis_files/plotly-treemap.png)
+![plotly treemap](/assets/images/linkedin-network-analysis/plotly-treemap.png)
 
 
 ### New Connections over time
@@ -162,7 +160,7 @@ daily_connections = (new_df
 
 
     
-![connections line graph](/assets/img/linkedin-network-analysis_files/linkedin-network-analysis_10_0.png)
+![connections line graph](/assets/images/linkedin-network-analysis/linkedin-network-analysis_10_0.png)
     
 
 
@@ -184,7 +182,7 @@ companies_count.head(15).plot(kind='barh').invert_yaxis() # convert to horizonta
 
 
     
-![companies bar chart](/assets/img/linkedin-network-analysis_files/linkedin-network-analysis_13_0.png)
+![companies bar chart](/assets/images/linkedin-network-analysis/linkedin-network-analysis_13_0.png)
     
 
 
@@ -203,7 +201,7 @@ position_count.head(15).plot(kind='barh').invert_yaxis() # convert to horizontal
 
 
     
-![positions bar chart](/assets/img/linkedin-network-analysis_files/linkedin-network-analysis_15_0.png)
+![positions bar chart](/assets/images/linkedin-network-analysis/linkedin-network-analysis_15_0.png)
     
 
 

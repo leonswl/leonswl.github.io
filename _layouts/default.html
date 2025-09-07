@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ page.lang | default: site.lang }}">
+
 {% include head.html %}
-<body>
 
-  <div class="wrapper">
-    {{ content }}
-  </div>
+<header class="hover smooth">
+  {% unless site.show_minimal and site.navigation and site.external %}
+    <h1 {% if site.navigation and site.external %}class="full"{% endif %}><a href="{{ "/" | relative_url }}">{{ site.title | escape }}</a></h1>
+  {% endunless %}
+  {% include menu.html menu=site.navigation %}
+  {% include menu.html menu=site.external %}
+</header>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('{{ "/sw.js" | relative_url }}')
-        .then(function(reg) {
-          console.log("Service Worker registered:", reg);
-        })
-        .catch(function(error) {
-          console.log("Service Worker registration failed:", error);
-        });
-    }
-  </script>
-  
-  {% include analytics.html %}
-</body>
+{{ content }}
+
+{%- if site.footer -%}
+<footer class="hover">
+  <div>{{ site.description }}</div>
+  {% include menu.html menu=site.footer %}
+</footer>
+{%- endif -%}
+
 </html>

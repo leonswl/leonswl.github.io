@@ -1,16 +1,12 @@
 ---
 layout: post
 title: Rule-based Sentiment Analysis on Syfe, Stashaway and Endowus
-description: Using Rule-based approach to conduct Sentiment Analysis on popular roboadvisors in Singapore - Syfe, Stashaway and Endowus. # Add post description (optional)
-img: '/multiple-rule-based-sentiment-analysis_files/rule-based-sentiment-analysis.jpeg' # Add image post (optional)
-fig-caption: # Add figcaption (optional)
-tags: [Data Analytics, Sentiment Analysis, Roboadvisors]
+description: Using Rule-based approach to conduct Sentiment Analysis on popular roboadvisors in Singapore 
+categories: [Data Analytics, Sentiment Analysis, Roboadvisors]
 ---
-Using 3 types of  lexicon based approach to conduct Sentiment Analysis on Syfe, StashAway and Endowus app reviews.
 
-- TextBlob
-- VADER
-- SentiWordNet
+Are all app reviews created equal? I put investment platforms — Syfe, StashAway, and Endowus — under the microscope using three lexicon-based sentiment tools: TextBlob, VADER, and SentiWordNet. Each one tells a slightly different story about what users love (or don’t), and together they reveal the hidden tone behind the feedback.
+
 
 
 ```python
@@ -903,7 +899,7 @@ axes[2].set_ylabel('Score Count')
 
 
     
-![Comparing Sentiment Analysis](/assets/img/multiple-rule-based-sentiment-analysis_files/multiple-rule-based-sentiment-analysis_26_1.png)
+![Comparing Sentiment Analysis](/assets/images/multiple-rule-based-sentiment-analysis/multiple-rule-based-sentiment-analysis_26_1.png)
     
 
 
@@ -959,7 +955,7 @@ axes1[2].set_ylabel('Score Count (%)')
 
 
     
-![Comparing Percentage Sentiment Analysis](/assets/img/multiple-rule-based-sentiment-analysis_files/multiple-rule-based-sentiment-analysis_29_1.png)
+![Comparing Percentage Sentiment Analysis](/assets/images/multiple-rule-based-sentiment-analysis/multiple-rule-based-sentiment-analysis_29_1.png)
     
 
 
