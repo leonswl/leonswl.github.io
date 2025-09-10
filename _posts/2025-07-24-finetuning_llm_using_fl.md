@@ -17,6 +17,24 @@ My capstone while pursuing my masters in data science was centered on finetuning
 
 The dataset utilized is a comprehensive financial instruction dataset sourced from Huggingface, specifically the [4DR1455/finance_questions](https://huggingface.co/datasets/4DR1455/finance_questions) collection. This dataset comprises 53,837 records, providing a robust foundation for the fine-tuning process of Large Language Models (LLMs) using federated learning techniques. Given its substantial size and focus on financial instructions, this dataset offers a rich variety of financial queries and responses, making it particularly suitable for training LLMs to understand and generate finance-related content. 
 
+## Frameworks for Federated LLMs
+
+There are several emerging frameworks designed to support federated fine-tuning of large language models:
+
+- OpenFedLLM: Provides a concise framework for federated instruction tuning and federated value alignment, with support for multiple domains (e.g., finance, education) and techniques like LoRA for parameter-efficient fine-tuning.
+- FederatedScope-LLM (FS-LLM): An extension of the FederatedScope platform with modules for benchmarks, algorithms, and training workflows, making it easier to evaluate and experiment with federated LLMs.
+
+Both are exciting contributions, but they’re still very new and face challenges like limited community support, unclear backwards compatibility, and adoption barriers in real-world applications.
+
+### Why I Used Flower
+
+I chose to build on [Flower](https://flower.ai/), an open-source federated learning framework that has gained stronger traction and community adoption.
+
+- Proven foundation: Flower focuses on federated learning and privacy-enhancing technologies, with practical use cases demonstrated in both academia and industry
+- Community & support: Unlike newer frameworks, Flower already has an active developer community, more robust documentation, and backing from venture funding (Felicis Ventures), giving it momentum for long-term sustainability.
+- Origins: Flower started as a research project at the University of Cambridge and later evolved into Flower Labs, an AI startup.
+- Practical relevance: Within the federated learning landscape, Flower is increasingly used in real-world implementations, making it a reliable choice for experimentation with federated fine-tuning of LLMs.
+
 ## Federated Learning Strategies Used
 
 I experimented with five different federated learning strategies to fine-tune large language models (LLMs). Each strategy tackles the challenge of training models across distributed, non-shared datasets in slightly different ways:
